@@ -7,7 +7,7 @@ robustness, accuracy, fairness and  explainability.
 # Install
 safeaipackage can be installed from TestPyPI as follows:
 
-pip install -i 'https://test.pypi.org/simple/safeaipackage==0.0.1'
+pip install -i https://test.pypi.org/simple/safeaipackage==0.0.1
 
 
 # Citations
