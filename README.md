@@ -1,7 +1,7 @@
 # SAFE AI
 
-To fulfill trustworthiness, Artificial Intelligence (AI) methods need to be safe. SAFE referes to the four ethics in AI: robu_S_tness, 
-_A_ccuracy, _F_airness, and _E_xplainability. In other words, a safe application of AI must satisfy four basic key-principles, summarised as: 
+To fulfill trustworthiness, Artificial Intelligence (AI) methods need to be safe. SAFE referes to the four ethics in AI: robu__S__tness, 
+__A__ccuracy, __F__airness, and __E__xplainability. In other words, a safe application of AI must satisfy four basic key-principles, summarised as: 
 robustness, accuracy, fairness and  explainability. 
 
 # Install
