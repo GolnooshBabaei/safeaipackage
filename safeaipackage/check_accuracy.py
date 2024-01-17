@@ -3,7 +3,10 @@ import numpy as np
 import scipy
 
 def rga(y, yhat):
-    df = pd.concat([y,yhat], axis=1, keys=['y', 'yhat'])
+    y = pd.DataFrame(y).reset_index(drop=True)
+    yhat = pd.DataFrame(yhat).reset_index(drop=True)
+    df = pd.concat([y,yhat], axis=1)
+    df.columns = ["y", "yhat"]
     ryhat = yhat.rank(method="min")
     df["ryhat"] = ryhat
     support = df.groupby('ryhat')['y'].mean().reset_index(name='support')
