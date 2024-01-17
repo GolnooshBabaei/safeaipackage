@@ -7,7 +7,7 @@ robustness, accuracy, fairness and  explainability.
 # Install
 safeaipackage can be installed from TestPyPI as follows:
 
-pip install -i https://test.pypi.org/simple/ safeaipackage==0.0.1
+pip install -i []([https://link.springer.com/article/10.1007/s11135-023-01613-y](https://test.pypi.org/simple/ safeaipackage==0.0.1))
 
 
 # Citations
@@ -15,4 +15,5 @@ The algorithms and visualizations used in this package came primarily out of res
 [Paolo Giudici](https://www.linkedin.com/in/paolo-giudici-60028a/), [Emanuela Raffinetti](https://www.linkedin.com/in/emanuela-raffinetti-a3980215/), 
 and [Golnoosh Babaei](https://www.linkedin.com/in/golnoosh-babaei-990077187/) in the [Statistical laboratory](https://sites.google.com/unipv.it/statslab-pavia/home?authuser=0) 
 at the University of Pavia. If you use safe_ai package in your research we would appreciate a citation to the appropriate paper(s):
-* For the RGA measure introduced in "Sustainability and Robustness", you can read/cite [this paper](https://link.springer.com/article/10.1007/s11135-023-01613-y)
+* For the RGA measure introduced in "check_accuracy" module, you can read/cite [this paper](https://link.springer.com/article/10.1007/s11135-023-01613-y)
+
