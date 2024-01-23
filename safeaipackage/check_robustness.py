@@ -1,8 +1,7 @@
 import pandas as pd
 import numpy as np
 import scipy
-
-
+from util import delta_function
 
 
 def rgr(yhat, yhat_pert):
@@ -25,11 +24,7 @@ def rgr(yhat, yhat_pert):
     RGR = (conc-dec)/(inc-dec)
     return RGR
     
-def delta_function(data):
-        result = (rgr(data.iloc[:,0], data.iloc[:,2]))-(rgr(data.iloc[:,0], data.iloc[:,1]))
-        return result
-    
-    
+
 def rgr_statistic_test(yhat_mod1,yhat_mod2,yhat_pert_mod1,yhat_pert_mod2):
         jk_mat = pd.concat([yhat_mod1,yhat_mod2,yhat_pert_mod1,yhat_pert_mod2], axis=1, keys=["yhat_mod1", 
                                                                                         "yhat_mode2", 
@@ -41,7 +36,7 @@ def rgr_statistic_test(yhat_mod1,yhat_mod2,yhat_pert_mod1,yhat_pert_mod2):
         for i in range(n):
             jk_sample = jk_mat.iloc[[x for x in index if x != i],:]
             jk_sample.reset_index(drop=True, inplace=True)
-            jk_statistic = delta_function(jk_sample)
+            jk_statistic = delta_function(jk_sample, rgr)
             jk_results.append(jk_statistic)
         se = np.sqrt(((n-1)/n)*(sum([(x-np.mean(jk_results))**2 for x in jk_results])))
         z = (rgr(yhat_mod1, yhat_pert_mod1)- rgr(yhat_mod2, yhat_pert_mod2))/se
