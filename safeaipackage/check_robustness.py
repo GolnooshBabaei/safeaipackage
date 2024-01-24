@@ -1,26 +1,29 @@
 import pandas as pd
 import numpy as np
 import scipy
-from util import delta_function
+from .util import delta_function
 
 
 def rgr(yhat, yhat_pert):
-    df = pd.concat([yhat,yhat_pert], axis=1, keys=['yhat', 'yhat_pert'])
+    yhat = pd.DataFrame(yhat).reset_index(drop=True)
+    yhat_pert = pd.DataFrame(yhat_pert).reset_index(drop=True)
+    df = pd.concat([yhat,yhat_pert], axis=1)
+    df.columns = ['yhat', 'yhat_pert']
     ryhat_pert = yhat_pert.rank(method="min")
     df["ryhat_pert"] = ryhat_pert
     support = df.groupby('ryhat_pert')['yhat'].mean().reset_index(name='support')
     rord = list(range(len(yhat)))
     for jj in range(len(rord)):
         for ii in range(len(support)):
-                if ryhat_pert[jj]== support['ryhat_pert'][ii]:
+                if df["ryhat_pert"][jj]== support['ryhat_pert'][ii]:
                     rord[jj] = support['support'][ii]         
-    vals = [[i, values] for i, values in enumerate(yhat_pert)]
+    vals = [[i, values] for i, values in enumerate(df["yhat_pert"])]
     ranks = [x[0] for x in sorted(vals, key= lambda item: item[1])]
     yhatstar = [rord[i] for i in ranks]
-    I = list(range(1,len(yhatstar)+1))   ########by this line everything is correct######
+    I = list(range(len(yhatstar)))   
     conc = 2*sum([I[i]*yhatstar[i] for i in range(len(I))])
-    dec = 2*sum([sorted(yhat, reverse=True)[i]*I[i] for i in range(len(I))]) 
-    inc = 2*sum([sorted(yhat)[i]*I[i] for i in range(len(I))]) 
+    dec = 2*sum([sorted(df["yhat"], reverse=True)[i]*I[i] for i in range(len(I))]) 
+    inc = 2*sum([sorted(df["yhat"])[i]*I[i] for i in range(len(I))]) 
     RGR = (conc-dec)/(inc-dec)
     return RGR
     

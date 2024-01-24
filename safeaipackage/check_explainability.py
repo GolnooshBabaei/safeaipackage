@@ -17,9 +17,9 @@ def rge(yhat_rm, yhat):
     vals = [[i, values] for i, values in enumerate(df["yhat"])]
     ranks = [x[0] for x in sorted(vals, key= lambda item: item[1])]
     ystar = [rord[i] for i in ranks]
-    I = list(range(1,len(yhat_rm)+1))
+    I = list(range(len(yhat_rm)))
     conc = 2*sum([I[i]*ystar[i] for i in range(len(I))])
-    dec= 2*sum([sorted(df["yhat_rm"], reverse=True)[i]*I[i] for i in range(len(I))]) # second term of the RGA numerator and denominator (dual Lorenz)
-    inc = 2*sum([sorted(df["yhat_rm"])[i]*I[i] for i in range(len(I))]) # first term of the RGA denominator (Lorenz)
+    dec= 2*sum([sorted(df["yhat_rm"], reverse=True)[i]*I[i] for i in range(len(I))]) 
+    inc = 2*sum([sorted(df["yhat_rm"])[i]*I[i] for i in range(len(I))]) 
     RGE=(conc-dec)/(inc-dec)
     return 1-RGE 
