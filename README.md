@@ -1,8 +1,14 @@
 # SAFE AI
 
-To fulfill trustworthiness, Artificial Intelligence (AI) methods need to be safe. SAFE referes to an AI based model for risk measures are controlled. 
-The general risks of AI can be considered in the following types: Privacy, Robustness, Accuracy, Fairness, and Explainability.
-In other words, a safe application of AI must satisfy these basic key-principles. 
+To fulfill trustworthiness, Artificial Intelligence (AI) methods need to be safe. SAFE referes to an AI based model for which risk measures are controlled. 
+The general risks of AI can be considered in the following categories: Privacy, Robustness, Accuracy, Fairness, and Explainability.
+In other words, a safe application of AI must satisfy these basic key-principles. First of all, it should be accurate and predicts the target variable close
+to the actual values. However, in addition to accuracy, it needs to be explainable because AI approaches are complex and understanding the reasons behind their
+results is difficult so to improve trustworthiness we need explainable methods. These models should be fair as well because automated decision-making models are
+sometimes biased against some special observations. Hence, we need to be careful about fairness in models. Robustness is another significant aspect that should
+be considered when measuring risks of AI because sometimes some small changes in a variable could lead to very different results that leads to risks of the model.
+In some cases, it is needed to remove information of some instances so we need to evaluate how model predictions changes when information are removed that refers
+to the privacy risk category. 
 
 # Install
 safeaipackage can be installed from TestPyPI as follows:
