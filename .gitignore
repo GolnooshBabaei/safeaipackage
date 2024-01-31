@@ -2,3 +2,4 @@ safeaipackage.egg-info
 dist
 safeaipackage/main.py
 notebooks
+examples/employee_example.ipynb
