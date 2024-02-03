@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 import scipy
-from .util import delta_function
+from .util import _delta_function
 
 def rga(y, yhat):
     y = pd.DataFrame(y).reset_index(drop=True)
@@ -37,7 +37,7 @@ def rga_statistic_test(y, yhat_rm, yhat_cm):
         for i in range(n):
             jk_sample = jk_mat.iloc[[x for x in index if x != i],:]
             jk_sample.reset_index(drop=True, inplace=True)
-            jk_statistic = delta_function(jk_sample, rga)
+            jk_statistic = _delta_function(jk_sample, rga)
             jk_results.append(jk_statistic)
         se = np.sqrt(((n-1)/n)*(sum([(x-np.mean(jk_results))**2 for x in jk_results])))
         z = (rga(y,yhat_cm)-rga(y,yhat_rm))/se

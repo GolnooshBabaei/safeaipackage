@@ -1,5 +1,5 @@
 import pandas as pd
-from check_accuracy import rga
+from .util import _rga
 
 def rgs(xtrain, xtest, ytrain, ytest, model):    
     xtrain = pd.DataFrame(xtrain).reset_index(drop=True)
@@ -15,5 +15,5 @@ def rgs(xtrain, xtest, ytrain, ytest, model):
         ytrain_rm = ytrain.drop(index=indices[i], axis=0)
         model_rm = model.fit(xtrain_rm, ytrain_rm)
         yhat_rm = model_rm.predict(xtest)
-        rgs_list.append((1-rga(yhat, yhat_rm)))
+        rgs_list.append((1-_rga(yhat, yhat_rm)))
     return pd.DataFrame(rgs_list, index=indices, columns=["RGS"])
