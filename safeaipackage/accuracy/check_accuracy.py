@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 import scipy
-from .util import _delta_function
+from ..utils.util import _delta_function
 
 def rga(y, yhat):
     y = pd.DataFrame(y).reset_index(drop=True)

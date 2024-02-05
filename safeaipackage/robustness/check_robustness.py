@@ -1,8 +1,7 @@
 import pandas as pd
 import numpy as np
 import scipy
-from .util import _delta_function
-from .util import _rga
+from ..utils.util import _delta_function, _rga
 import matplotlib.pyplot as plt
 
 
@@ -43,7 +42,7 @@ def rgr_testfunc(yhat, yhat_pert):
     vals = [[i, values] for i, values in enumerate(df["yhat_pert"])]
     ranks = [x[0] for x in sorted(vals, key= lambda item: item[1])]
     yhatstar = [rord[i] for i in ranks]
-    I = list(range(1,len(yhatstar)+1))   ########by this line everything is correct######
+    I = list(range(1,len(yhatstar)+1))   
     conc = 2*sum([I[i]*yhatstar[i] for i in range(len(I))])
     dec = 2*sum([sorted(df["yhat"], reverse=True)[i]*I[i] for i in range(len(I))]) 
     inc = 2*sum([sorted(df["yhat"])[i]*I[i] for i in range(len(I))]) 

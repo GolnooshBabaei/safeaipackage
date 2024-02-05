@@ -1,7 +1,7 @@
 import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
-from .util import _rga 
+from ..utils.util import _rga 
 import matplotlib.pyplot as plt
 
 

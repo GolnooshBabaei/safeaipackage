@@ -1,5 +1,5 @@
 import pandas as pd
-from .util import _rga 
+from ..utils.util import _rga 
 
 
 def rgf(xtrain, xtest, ytrain, ytest, protectedvariables, model):
