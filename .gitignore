@@ -1,5 +1,7 @@
 safeaipackage.egg-info
 dist
 safeaipackage/main.py
+safeaipackage/data_test.py
 notebooks
 examples/employee_example.ipynb
+safeaipackage/datasets/employee.xlsx
