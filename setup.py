@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 import codecs
 import os
 
-VERSION = '2.0.5'
+VERSION = '2.1.0'
 DESCRIPTION = 'SAFE AI package to measure robuStness, Accuracy, Fairness, and Explainability of an AI model'
 
 # Setting up

@@ -6,7 +6,8 @@ from sklearn.ensemble import RandomForestClassifier
 def _delta_function(data, func):
         result = (func(data.iloc[:,0], data.iloc[:,2]))-(func(data.iloc[:,0], data.iloc[:,1]))
         return result
-    
+
+
 def _rga(y, yhat):
     y = pd.DataFrame(y).reset_index(drop=True)
     yhat = pd.DataFrame(yhat).reset_index(drop=True)

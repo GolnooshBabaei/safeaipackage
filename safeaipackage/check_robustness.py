@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 import scipy
-from ..utils.util import _delta_function, _rga
+from .utils.util import _delta_function, _rga
 import matplotlib.pyplot as plt
 
 

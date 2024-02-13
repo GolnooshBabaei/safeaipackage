@@ -1,5 +1,5 @@
 import pandas as pd
-from ..utils.util import _rga
+from .utils.util import _rga
 
 def rgp(xtrain, xtest, ytrain, ytest, model):    
     xtrain = pd.DataFrame(xtrain).reset_index(drop=True)
@@ -17,3 +17,7 @@ def rgp(xtrain, xtest, ytrain, ytest, model):
         yhat_rm = model_rm.predict(xtest)
         rgp_list.append((1-_rga(yhat, yhat_rm)))
     return pd.DataFrame(rgp_list, index=indices, columns=["RGP"])
+
+
+def rgp_statistic_test():
+    pass
