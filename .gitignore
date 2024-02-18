@@ -4,4 +4,5 @@ safeaipackage/main.py
 safeaipackage/data_test.py
 notebooks
 examples/untitled.ipynb
+examples/spelta_data.ipynb
 safeaipackage/datasets/employee.xlsx

@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 import scipy
-from .utils.util import _rga, _delta_function 
+from .utils.util import _rga, _delta_function, _num, _den 
 import matplotlib.pyplot as plt
 
 
@@ -84,9 +84,9 @@ def rge_statistic_test(yhat, yhat_xk):
      for i in range(n):
           jk_sample = jk_mat.iloc[[x for x in index if x != i],:]
           jk_sample.reset_index(drop=True, inplace=True)
-          jk_statistic = delta_function(jk_sample)
+          jk_statistic = _delta_function(jk_sample)
           jk_results.append(jk_statistic)
      se = np.sqrt(((n-1)/n)*(sum([(x-np.mean(jk_results))**2 for x in jk_results])))
-     z = (rge_den(yhat)-rge_num(yhat,yhat_xk))/se
+     z = (_den(yhat)-_num(yhat,yhat_xk))/se
      p_value = 2*scipy.stats.norm.cdf(-abs(z))
      return p_value
