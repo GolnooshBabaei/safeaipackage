@@ -51,7 +51,7 @@ def rgp_statistic_test(yhat, yhat_rm):
         for i in range(n):
             jk_sample = jk_mat.iloc[[x for x in index if x != i],:]
             jk_sample.reset_index(drop=True, inplace=True)
-            jk_statistic = _delta_function(jk_sample, _rga)
+            jk_statistic = _delta_function(jk_sample)
             jk_results.append(jk_statistic)
         se = np.sqrt(((n-1)/n)*(sum([(x-np.mean(jk_results))**2 for x in jk_results])))
         z = (_den(yhat)-_num(yhat, yhat_rm))/se

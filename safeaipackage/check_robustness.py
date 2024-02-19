@@ -100,6 +100,28 @@ def rgr_all(xtrain, xtest, ytrain, ytest, model, perturbation_percentage= 0.05):
     return rgr_
 
 
+def perturb(data, variable):
+    data = data.reset_index(drop=True)
+    perturbed_variable = data.loc[:,variable]
+    sorted_variable = np.sort(perturbed_variable)
+    percentile_5_index = int(np.ceil(0.15 * len(sorted_variable)))
+    percentile_95_index = int(np.ceil(0.85 * len(sorted_variable)))
+    values_before_5th_percentile = sorted_variable[:percentile_5_index]
+    values_after_95th_percentile = sorted_variable[percentile_95_index:]
+    vals = [[i, values] for i, values in enumerate(perturbed_variable)]
+    indices = [x[0] for x in sorted(vals, key= lambda item: item[1])]
+    lower_tail = indices[0:10]
+    upper_tail = (indices[-10:])
+    upper_tail = upper_tail[::-1]
+    new_variable = perturbed_variable.copy()
+    n = min([len(lower_tail), len(upper_tail)])
+    for j in range(n):
+        new_variable[lower_tail[j]] = perturbed_variable[upper_tail[j]]
+        new_variable[upper_tail[j]] = perturbed_variable[lower_tail[j]]
+    data.loc[:,variable] = new_variable
+    return data
+
+
 def rgr_statistic_test(yhat_mod1,yhat_mod2,yhat_pert_mod1,yhat_pert_mod2):
         """
         RGR based test for comparing the robustness of a model with that of a further compared model
