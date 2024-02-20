@@ -2,7 +2,7 @@
 
 The increasing widespread of Artificial Intelligence (AI) applications implies the formalisa-
 tion of an AI risk management model which needs methodological guidelines for an effec-
-tive implementation. To fill the gap, [Giudici and Raffinetti (2023)]([https://link.springer.com/article/10.1007/s11135-023-01613-y](https://www.sciencedirect.com/science/article/pii/S1544612323004609)) 
+tive implementation. To fill the gap, [Giudici and Raffinetti (2023)](https://www.sciencedirect.com/science/article/pii/S1544612323004609) 
 introduced a S.A.F.E.
 risk management model which derives from the proposed international regulations four main
 compliance principles: Security, Accuracy, Fairness and Explainability, that can be measured
