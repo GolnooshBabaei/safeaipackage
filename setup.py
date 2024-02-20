@@ -1,8 +1,12 @@
 from setuptools import setup, find_packages
-import codecs
-import os
+from setuptools import setup
 
-VERSION = '2.2.4'
+# read the contents of your README file
+from pathlib import Path
+this_directory = Path(__file__).parent
+long_description = (this_directory / "README.md").read_text()
+
+VERSION = '2.2.5'
 DESCRIPTION = 'SAFE AI package to measure robuStness, Accuracy, Fairness, and Explainability of an AI model'
 
 # Setting up
@@ -21,5 +25,7 @@ setup(
         "Operating System :: Unix",
         "Operating System :: MacOS :: MacOS X",
         "Operating System :: Microsoft :: Windows",
-    ]
+    ],
+    long_description=long_description,
+    long_description_content_type='text/markdown'
 )

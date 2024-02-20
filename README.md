@@ -13,8 +13,7 @@ to the privacy risk category.
 # Install
 safeaipackage can be installed from TestPyPI as follows:
 
-pip install -i https://test.pypi.org/simple/safeaipackage==0.0.1
-
+pip install safeaipackage
 
 # Citations
 The algorithms and visualizations used in this package came primarily out of research by 
