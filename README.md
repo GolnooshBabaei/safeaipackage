@@ -33,11 +33,18 @@ always in progress so that, like a box, it can be constantly filled by innovativ
 to the measurement of the new future requirements necessary for the safety condition of
 AI-systems.
 
+
 # Install
 
 Simply use:
 
 pip install safeaipackage
+
+
+# Example
+
+In the folder "examples", we provide two notebooks related to a classification and a regression problem applied to the [employee dataset](https://search.r-project.org/CRAN/refmans/stima/html/employee.html).
+This dataset can also be downloaded from this folder. 
 
 
 # Citations
