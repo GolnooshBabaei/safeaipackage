@@ -2,7 +2,6 @@ import pandas as pd
 import numpy as np
 import scipy
 from .utils.util import _rga_delta_function, _rga
-import matplotlib.pyplot as plt
 
 
 def rgr_single(xtrain, xtest, ytrain, ytest, model, variable, perturbation_percentage= 0.05):
@@ -31,23 +30,7 @@ def rgr_single(xtrain, xtest, ytrain, ytest, model, variable, perturbation_perce
     ytest = pd.DataFrame(ytest).reset_index(drop=True)
     model_full = model.fit(xtrain, ytrain)
     yhat = model_full.predict(xtest)
-    rgr_vals = []
-    perturbed_xtrain = xtrain.reset_index(drop=True)
-    variable_perturbed = perturbed_xtrain.loc[:,variable]
-    sorted_data = np.sort(variable_perturbed)
-    percentile_5_index = int(np.ceil(perturbation_percentage * len(sorted_data)))
-    percentile_95_index = int(np.ceil(1-perturbation_percentage * len(sorted_data)))
-    values_before_5th_percentile = sorted_data[:percentile_5_index]
-    values_after_95th_percentile = sorted_data[percentile_95_index:]
-    vals = [[i, values] for i, values in enumerate(variable_perturbed)]
-    indices = [x[0] for x in sorted(vals, key= lambda item: item[1])]
-    lower_tail = indices[0:percentile_5_index]
-    upper_tail = (indices[-percentile_5_index:])
-    upper_tail = upper_tail[::-1]
-    for j in range(len(lower_tail)):
-        variable_perturbed[lower_tail[j]] = variable_perturbed[upper_tail[j]]
-        variable_perturbed[upper_tail[j]] = variable_perturbed[lower_tail[j]]
-    perturbed_xtrain.loc[:,variable] = variable_perturbed
+    perturbed_xtrain = perturb(xtrain, variable, perturbation_percentage)
     rf_perturbed = model.fit(perturbed_xtrain, ytrain)
     yhat_pert = rf_perturbed.predict(xtest)
     rgr_val = _rga(yhat, yhat_pert)
@@ -76,48 +59,44 @@ def rgr_all(xtrain, xtest, ytrain, ytest, model, perturbation_percentage= 0.05):
     ytest = pd.DataFrame(ytest).reset_index(drop=True)
     model_full = model.fit(xtrain, ytrain)
     yhat = model_full.predict(xtest)
-    rgr_vals = []
-    perturbed_xtrain = xtrain.reset_index(drop=True)
-    for i in range(xtrain.shape[1]):
-        variable_perturbed = perturbed_xtrain.iloc[:,i]
-        sorted_data = np.sort(variable_perturbed)
-        percentile_5_index = int(np.ceil(perturbation_percentage * len(sorted_data)))
-        percentile_95_index = int(np.ceil(1-perturbation_percentage * len(sorted_data)))
-        values_before_5th_percentile = sorted_data[:percentile_5_index]
-        values_after_95th_percentile = sorted_data[percentile_95_index:]
-        vals = [[i, values] for i, values in enumerate(variable_perturbed)]
-        indices = [x[0] for x in sorted(vals, key= lambda item: item[1])]
-        lower_tail = indices[0:percentile_5_index]
-        upper_tail = (indices[-percentile_5_index:])
-        upper_tail = upper_tail[::-1]
-        for j in range(len(lower_tail)):
-            variable_perturbed[lower_tail[j]] = variable_perturbed[upper_tail[j]]
-            variable_perturbed[upper_tail[j]] = variable_perturbed[lower_tail[j]]
-        perturbed_xtrain.iloc[:,i] = variable_perturbed
+    perturbed_xtrain = xtrain.copy()
+    for i in xtrain.columns:
+        perturbed_xtrain[i] = perturb(xtrain, i, perturbation_percentage)[i]
     rf_perturbed = model.fit(perturbed_xtrain, ytrain)
     yhat_pert = rf_perturbed.predict(xtest)
-    rgr_ = _rga(yhat, yhat_pert)
-    return rgr_
+    rgr_val= _rga(yhat, yhat_pert)
+    return rgr_val
 
 
-def perturb(data, variable):
+def perturb(data, variable, perturbation_percentage= 0.05):
+    """
+     Function to perturb a single variable based on the replacement of the two percentiles selected using the 
+     given perturbation_percentage.
+     Inputs: data -> A dataframe including xtrain data used for traing the model; 
+             variable -> A dataframe including xtest data used for testing the model;
+             perturbation_percentage -> The percentage indicating the percentile of interest for perturbation, by 
+             default equal to 0.05. Therefore, the 5th and 95th percentiles are considered for the perturbation if a 
+             specific percentage is not defined. The maximum value allowed to set for this input variable is 0.5.
+    """ 
+    if perturbation_percentage > 0.5 or perturbation_percentage < 0:
+        raise ValueError("The perturbation percentage should be between 0 and 0.5.")
     data = data.reset_index(drop=True)
     perturbed_variable = data.loc[:,variable]
-    sorted_variable = np.sort(perturbed_variable)
-    percentile_5_index = int(np.ceil(0.15 * len(sorted_variable)))
-    percentile_95_index = int(np.ceil(0.85 * len(sorted_variable)))
-    values_before_5th_percentile = sorted_variable[:percentile_5_index]
-    values_after_95th_percentile = sorted_variable[percentile_95_index:]
     vals = [[i, values] for i, values in enumerate(perturbed_variable)]
     indices = [x[0] for x in sorted(vals, key= lambda item: item[1])]
-    lower_tail = indices[0:10]
-    upper_tail = (indices[-10:])
-    upper_tail = upper_tail[::-1]
+    sorted_variable = [x[1] for x in sorted(vals, key= lambda item: item[1])]
+    percentile_5_index = int(np.ceil(perturbation_percentage * len(sorted_variable)))
+    percentile_95_index = int(np.ceil((1-perturbation_percentage) * len(sorted_variable)))
+    values_before_5th_percentile = sorted_variable[:percentile_5_index]
+    values_after_95th_percentile = sorted_variable[percentile_95_index:]
+    n = min([len(values_before_5th_percentile), len(values_after_95th_percentile)])
+    lowertail_indices = indices[0:n]
+    uppertail_indices = (indices[-n:])
+    uppertail_indices = uppertail_indices[::-1]
     new_variable = perturbed_variable.copy()
-    n = min([len(lower_tail), len(upper_tail)])
     for j in range(n):
-        new_variable[lower_tail[j]] = perturbed_variable[upper_tail[j]]
-        new_variable[upper_tail[j]] = perturbed_variable[lower_tail[j]]
+        new_variable[lowertail_indices[j]] = perturbed_variable[uppertail_indices[j]]
+        new_variable[uppertail_indices[j]] = perturbed_variable[lowertail_indices[j]]
     data.loc[:,variable] = new_variable
     return data
 

@@ -31,7 +31,7 @@ def rgp(xtrain, xtest, ytrain, ytest, index, model):
             ytrain_rm = ytrain.drop(index=i, axis=0)
             model_rm = model.fit(xtrain_rm, ytrain_rm)
             yhat_rm = model_rm.predict(xtest)
-            rgp_list.append((1-_rga(yhat, yhat_rm)))
+            rgp_list.append((_rga(yhat, yhat_rm)))
         else:
             raise ValueError(f"index {i} is not available")
     return pd.DataFrame(rgp_list, index=index, columns=["RGP"])
