@@ -4,4 +4,6 @@ safeaipackage/main.py
 safeaipackage/data_test.py
 notebooks
 examples/untitled.ipynb
-examples/spelta_data.ipynb
+examples/employee_classification.ipynb
+examples/employee_regression.ipynb
+old_version_functions

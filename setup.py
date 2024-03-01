@@ -4,10 +4,13 @@ from setuptools import setup
 # read the contents of your README file
 from pathlib import Path
 this_directory = Path(__file__).parent
-long_description = (this_directory / "README.md").read_text()
 
-VERSION = '2.2.5'
-DESCRIPTION = 'SAFE AI package to measure robuStness, Accuracy, Fairness, and Explainability of an AI model'
+# Open README.md with UTF-8 encoding
+with open(this_directory / "README.md", encoding="utf-8") as f:
+    long_description = f.read()
+    
+VERSION = '0.4.0'
+DESCRIPTION = 'SAFE AI package to measure risks of AI models'
 
 # Setting up
 setup(
