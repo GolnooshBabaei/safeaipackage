@@ -52,6 +52,7 @@ This dataset can also be downloaded from this folder.
 The proposed measures in this package came primarily out of research by 
 [Paolo Giudici](https://www.linkedin.com/in/paolo-giudici-60028a/), [Emanuela Raffinetti](https://www.linkedin.com/in/emanuela-raffinetti-a3980215/), 
 and [Golnoosh Babaei](https://www.linkedin.com/in/golnoosh-babaei-990077187/) in the [Statistical laboratory](https://sites.google.com/unipv.it/statslab-pavia/home?authuser=0) 
-at the University of Pavia. If you use safe_ai package in your research we would appreciate a citation to the appropriate paper(s):
-* For the RGA measure introduced in "check_accuracy" module, you can read/cite [this paper](https://link.springer.com/article/10.1007/s11135-023-01613-y)
+at the University of Pavia. 
+This package is based on the following paper. If you use safeaipackage in your research we would appreciate a citation to our paper:
+* [safeaipackage: a Python package for AI risk measurement](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=4744576)
 
