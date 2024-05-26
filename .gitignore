@@ -1,7 +1,5 @@
-safeaipackage.egg-info
-dist
-safeaipackage/main.py
-safeaipackage/data_test.py
-notebooks
+#safeaipackage.egg-info
+#dist
+#safeaipackage/main.py
+#safeaipackage/data_test.py
 examples/untitled.ipynb
-old_version_functions
