@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 import scipy
-from .utils.util import _delta_function, _rga_random, _rga, _num, _den, _rge_delta_function
+from .utils.util import _delta_function, _rga, _num, _den, _rge_delta_function
 
 class Privacy:
     def __init__(self, xtrain, xtest, ytrain, ytest, model):
@@ -19,8 +19,11 @@ class Privacy:
          
     def rgp(self, index):
         """
-        ### RANK GRADUATION PRIVACY (RGP) MEASURE ###
+        RANK GRADUATION PRIVACY (RGP) MEASURE 
         Function for the RGP measure computation
+
+        Returns:
+        RGP  : Calculated RGP measure
         """      
         if not isinstance(index, list):
             raise ValueError("Index input must be a list")
@@ -44,6 +47,9 @@ class Privacy:
         """
         RGP based test for comparing the ordering of the ranks related to the full model with that of the
         reduced model without the observation of interest
+
+        Returns:
+        p_value : p-value for the statistical test
         """
         xtrain_rm = self.xtrain.drop(index, axis=0)
         ytrain_rm = self.ytrain.drop(index, axis=0)

@@ -20,8 +20,11 @@ class Accuracy:
          
     def rga(self):
         """
-        ### RANK GRADUATION ACCURACY (RGA) MEASURE ###
-        Function for the RGE measure computation
+        RANK GRADUATION ACCURACY (RGA) MEASURE
+        Function for the RGA measure computation
+
+        Returns:
+        RGA  : Calculated RGA measure
         """ 
         df = pd.concat([self.ytest,self.yhat_cm], axis=1)
         df.columns = ["y", "yhat"]
@@ -37,18 +40,20 @@ class Accuracy:
         ranks = [x[0] for x in sorted(vals, key= lambda item: item[1])]
         ystar = [rord[i] for i in ranks]
         I = list(range(len(self.ytest)))
-        conc = 2*sum([I[i]*ystar[i] for i in range(len(I))])
-        dec= 2*sum([sorted(df["y"], reverse=True)[i]*I[i] for i in range(len(I))]) 
-        inc = 2*sum([sorted(df["y"])[i]*I[i] for i in range(len(I))]) 
+        conc = sum([I[i]*ystar[i] for i in range(len(I))])
+        dec= sum([sorted(df["y"], reverse=True)[i]*I[i] for i in range(len(I))]) 
+        inc = sum([sorted(df["y"])[i]*I[i] for i in range(len(I))]) 
         RGA=(conc-dec)/(inc-dec)
         return RGA
     
     
     def rga_statistic_test(self, problemtype, variable= np.nan):
         """
-        RGA based test for comparing the predictive accuracy of the model with that of a reduced model: full model
-        without one variable, if the variable is selected by the user otherwise the predictive accuracy of the model 
-        is compared with a baseline
+        RGA based test for comparing the predictive accuracy of a reduced model with that of a more complex model Or 
+        compare the model with a random model
+        
+        Returns:
+        p_value : p-value for the statistical test
         """
         if problemtype not in ["classification", "prediction"]:
             raise ValueError("problemtype should be classification or prediction")

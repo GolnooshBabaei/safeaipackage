@@ -44,15 +44,20 @@ pip install safeaipackage
 # Example
 
 In the folder "examples", we provide two notebooks related to a classification and a regression problem applied to the [employee dataset](https://search.r-project.org/CRAN/refmans/stima/html/employee.html).
-This dataset can also be downloaded in this folder. 
+
+
+# Complementary package
+
+The safeaipackage works only with scikit-learn models. Therefore, if you need to evaluate other types of models you can use the following [package](https://pypi.org/project/modelagnosticsafeaipackage/):
+
+pip install modelagnosticsafeaipackage
+
 
 # Branches
 
 There are three branches in this repository:
 
 main: includes all the functions compatible with the package
-
-modelagnostic: this branch represents all the functions available in the package but in a model agnostic version, with different inputs. In other words, these function do not ask for the model as an input. In this case, only vectors of actual target values and the predicted values are needed to calculate different metrics.
 
 sampling: Here we provide a notebook including a modified version of accuracy class in which we improve the performance of this module when huge datasets are given to the functions. To this end, considering the selected number of samples and sample size, if the number of observations in test data is higher than a selected threshold (for example 200), different samples are extracted from test data and functions are repeated and applied to all the geenrated samples to calculate the average of the results for the samples. Therefore, the given RGA and Pvalue are the average of RGA and Pvalues of the samples.
 

@@ -19,8 +19,11 @@ class Fairness:
          
     def rgf(self, protectedvariable):
         """
-        ### RANK GRADUATION FAIRNESS (RGF) MEASURE ###
+        RANK GRADUATION FAIRNESS (RGF) MEASURE 
         Function for the RGF measure computation
+        
+        Returns:
+        RGF  : Calculated RGF measure
         """   
         if not isinstance(protectedvariable, list):
             raise ValueError("Protectedvariables input must be a list")
@@ -40,7 +43,10 @@ class Fairness:
     def rgf_statistic_test(self, protectedvariable):
         """
         RGF based test for comparing the ordering of the ranks related to the full model with that of the
-        reduced model without the protected variable of interest
+        reduced model without the protected variable 
+        
+        Returns:
+        p_value : p-value for the statistical test
         """
         if protectedvariable not in self.xtrain.columns:
             raise ValueError("protected variable is not available.")

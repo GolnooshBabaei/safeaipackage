@@ -20,8 +20,11 @@ class Explainability:
          
     def rge(self):
         """
-        ### RANK GRADUATION EXPLAINABILITY (RGE) MEASURE ###
+        RANK GRADUATION EXPLAINABILITY (RGE) MEASURE
         Function for the RGE measure computation
+        
+        Returns:
+        RGE  : Calculated RGE measure
         """ 
         rge_list = []
         model_full = self.model.fit(self.xtrain, self.ytrain)
@@ -45,6 +48,9 @@ class Explainability:
         """
         RGE based test for comparing the ordering of the ranks related to the full model with that of the
         reduced model without the predictor of interest
+        
+        Returns:
+        p_value : p-value for the statistical test
         """
         if variable not in self.xtrain.columns:
             raise ValueError("protected variable is not available.")

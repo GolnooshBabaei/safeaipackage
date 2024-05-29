@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 import scipy
 from sklearn.dummy import DummyClassifier, DummyRegressor
-from .utils.util import _delta_function, _rga_random, _rga
+from .utils.util import _delta_function, _rga
 
 class Robustness():
     def __init__(self, xtrain, xtest, ytrain, ytest, model):
@@ -20,8 +20,8 @@ class Robustness():
         
     def perturb(self, data, variable, perturbation_percentage= 0.05):
         """
-         Function to perturb a single variable based on the replacement of the two percentiles selected using the
-         perturbation_percentage of the object.
+        Function to perturb a single variable based on the replacement of the two percentiles selected using the
+        perturbation_percentage of the object.
         """ 
         if perturbation_percentage > 0.5 or perturbation_percentage < 0:
             raise ValueError("The perturbation percentage should be between 0 and 0.5.")
@@ -48,8 +48,12 @@ class Robustness():
 
     def rgr_single(self, variable, perturbation_percentage= 0.05):
         """
-         ### RANK GRADUATION Robustness (RGR) MEASURE ###
-         Function for the RGR measure computation regarding perturbation of a single variable
+        RANK GRADUATION Robustness (RGR) MEASURE
+        Function for the RGR measure computation regarding perturbation of a single variable
+
+
+        Returns:
+        RGR  : Calculated RGR measure
         """ 
         if perturbation_percentage > 0.5 or perturbation_percentage < 0:
             raise ValueError("The perturbation percentage should be between 0 and 0.5.")
@@ -66,8 +70,11 @@ class Robustness():
     
     def rgr_all(self, perturbation_percentage= 0.05):
         """
-         ### RANK GRADUATION Robustness (RGR) MEASURE ###
-         Function for the RGR measure computation regarding perturbation of all variables
+        RANK GRADUATION Robustness (RGR) MEASURE 
+        Function for the RGR measure computation regarding perturbation of all variables
+
+        Returns:
+        RGR  : Calculated RGR measure
         """ 
         if perturbation_percentage > 0.5 or perturbation_percentage < 0:
             raise ValueError("The perturbation percentage should be between 0 and 0.5.")    
@@ -85,6 +92,9 @@ class Robustness():
         for the secondmodel. In this case, variable should be set as well. If the second model and variable are
         not given by the user, this test function compares the main model of the class object with a baseline model
         depending on the type of the problem defined by the problemtype, either classification or prediction.
+
+        Returns:
+        p_value : p-value for the statistical test
         """
         if problemtype not in ["classification", "prediction"]:
             raise ValueError("problemtype should be classification or prediction")
@@ -142,6 +152,6 @@ class Robustness():
                 jk_statistic = _delta_function(jk_sample, _rga)
                 jk_results.append(jk_statistic)
             se = np.sqrt(((n-1)/n)*(sum([(x-np.mean(jk_results))**2 for x in jk_results])))
-            z = (_rga(self.yhat, yhat_pert)- _rga_random(yhat_mod2, yhat_mode2_pert))/se
+            z = (_rga(self.yhat, yhat_pert)- _rga(yhat_mod2, yhat_mode2_pert))/se
             p_value = 2*scipy.stats.norm.cdf(-abs(z))
         return p_value
