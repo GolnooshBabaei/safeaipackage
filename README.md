@@ -55,7 +55,7 @@ pip install modelagnosticsafeaipackage
 
 # Branches
 
-There are three branches in this repository:
+There are two branches in this repository:
 
 main: includes all the functions compatible with the package
 
