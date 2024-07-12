@@ -28,22 +28,17 @@ class Accuracy:
         """ 
         df = pd.concat([self.ytest,self.yhat_cm], axis=1)
         df.columns = ["y", "yhat"]
-        ryhat = self.yhat_cm.rank(method="min")
-        df["ryhat"] = ryhat
+        df["ryhat"] = df["yhat"].rank(method="min")
         support = df.groupby('ryhat')['y'].mean().reset_index(name='support')
-        rord = list(range(len(self.ytest)))
-        for jj in range(len(rord)):
-            for ii in range(len(support)):
-                    if df["ryhat"][jj]== support['ryhat'][ii]:
-                        rord[jj] = support['support'][ii]
-        vals = [[i, values] for i, values in enumerate(df["yhat"])]
-        ranks = [x[0] for x in sorted(vals, key= lambda item: item[1])]
-        ystar = [rord[i] for i in ranks]
-        I = list(range(len(self.ytest)))
-        conc = sum([I[i]*ystar[i] for i in range(len(I))])
-        dec= sum([sorted(df["y"], reverse=True)[i]*I[i] for i in range(len(I))]) 
-        inc = sum([sorted(df["y"])[i]*I[i] for i in range(len(I))]) 
-        RGA=(conc-dec)/(inc-dec)
+        df = pd.merge(df, support, on= "ryhat")
+        
+        inc = np.sum(np.arange(1,len(df)+1) * sorted(df["y"]), dtype=np.int64)
+        dec = np.sum(np.arange(1,len(df)+1) * sorted(df["y"], reverse= True), dtype=np.int64)
+        
+        ystar = df.sort_values(by= "ryhat")["support"]
+        ystar.reset_index(drop=True, inplace=True)
+        conc = np.sum(np.arange(1,len(df)+1) * ystar, dtype=np.int64)
+        RGA = (conc-dec)/(inc-dec)
         return RGA
     
     
