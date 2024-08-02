@@ -13,7 +13,6 @@ library(ggplot2) # package needed for plots
 library(forcats)  # package needed for improve graphical representations
 library(rpart) # package for implementing the regression tree
 library(randomForest) # package for implementing random forest
-library(clinfun) # package for implementing JT test
 
 # Generate a 4-dimensional multivariate normal with names (Y,X1,X2,X3,X4), and 100 observations, 
 # with bilateral correlations
@@ -126,7 +125,7 @@ RGA_reg_tree<-unlist(as.vector(RGA_reg_tree))
 RGA_rf_mod<-unlist(as.vector(RGA_rf_mod))
 
 ############################################################################################################################
-# ROBUSTNESS
+# ROBUSTNESS (SUSTAINABILITY)
 RGR<-function(yhat,yhat_pert){   
   ryhat_pert<-rank(round(yhat_pert,4),ties.method="min") # ranks of the predicted values
   support<-tapply(yhat,ryhat_pert,mean) # replace the observed target variable value corresponding to the same predictive values with their mean 
@@ -636,64 +635,4 @@ round(sd_RGE_reg_tree_X4,4)
 sd_RGE_rf_mod_X4<-sd(RGE_rf_mod_X4)
 round(sd_RGE_rf_mod_X4,4)
 
-#################
-### JT - TEST ###
-#################
-# RGA
-# lin reg > rand for > reg tree
-pieces.RGA<-c(RGA_lin_reg,RGA_rf_mod,RGA_reg_tree) 
-n<-c(1000,1000,1000) 
-grp.r<-as.ordered(factor(rep(1:length(n),n))) 
-
-jt_RGA<-jonckheere.test(pieces.RGA,grp.r,alternative="decreasing",nperm=1000) 
-
-# RGR
-# rand for > reg tree > lin reg
-pieces.RGR<-c(RGR_rf_mod,RGR_reg_tree,RGR_lin_reg) 
-n<-c(1000,1000,1000) 
-grp.r<-as.ordered(factor(rep(1:length(n),n))) 
-
-jt_RGR<-jonckheere.test(pieces.RGR,grp.r,alternative="decreasing",nperm=1000) 
-
-# RGF
-# reg tree > rand for > lin reg
-pieces.RGF<-c(RGF_reg_tree_X1bin,RGF_rf_mod_X1bin,RGF_lin_reg_X1bin) 
-n<-c(1000,1000,1000) 
-grp.r<-as.ordered(factor(rep(1:length(n),n))) 
-
-jt_RGF<-jonckheere.test(pieces.RGF,grp.r,alternative="decreasing",nperm=1000) 
-
-# RGE
-# Variable 1
-# lin reg > rand for > reg tree
-pieces.RGE_X1<-c(RGE_lin_reg_X1,RGE_rf_mod_X1,RGE_reg_tree_X1) 
-n<-c(1000,1000,1000) 
-grp.r<-as.ordered(factor(rep(1:length(n),n))) 
-
-jt_RGE_X1<-jonckheere.test(pieces.RGE_X1,grp.r,alternative="decreasing",nperm=1000) 
-
-# Variable 2
-# lin reg > rand for > reg tree
-pieces.RGE_X2<-c(RGE_lin_reg_X2,RGE_rf_mod_X2,RGE_reg_tree_X2) 
-n<-c(1000,1000,1000) 
-grp.r<-as.ordered(factor(rep(1:length(n),n))) 
-
-jt_RGE_X2<-jonckheere.test(pieces.RGE_X1,grp.r,alternative="decreasing",nperm=1000) 
-#pvalue=0.001
-
-# Variable 3
-#lin reg  > reg tree > rand for
-pieces.RGE_X3<-c(RGE_lin_reg_X3,RGE_reg_tree_X3,RGE_rf_mod_X3) 
-n<-c(1000,1000,1000) 
-grp.r<-as.ordered(factor(rep(1:length(n),n))) 
-
-jt_RGE_X3<-jonckheere.test(pieces.RGE_X3,grp.r,alternative="decreasing",nperm=1000) 
-
-# Variable 4
-#reg tree > lin reg > rand for 
-pieces.RGE_X4<-c(RGE_reg_tree_X4,RGE_lin_reg_X4,RGE_rf_mod_X4) 
-n<-c(1000,1000,1000) 
-grp.r<-as.ordered(factor(rep(1:length(n),n))) 
-
-jt_RGE_X4<-jonckheere.test(pieces.RGE_X4,grp.r,alternative="decreasing",nperm=1000) 
 
