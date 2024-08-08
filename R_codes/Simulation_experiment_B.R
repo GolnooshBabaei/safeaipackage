@@ -1,7 +1,7 @@
-#################################################################
-############  SIMULATION STUDY: MULTIPLE EXPERIMENTS ############
-### EXPERIMENT 1 (NON_NORMAL DISTRIBUTION WITH CORR MATRIX 2) ###
-#################################################################
+#############################################################
+##########  SIMULATION STUDY: MULTIPLE EXPERIMENTS ##########
+### EXPERIMENT B (NORMAL DISTRIBUTION WITH CORR MATRIX 2) ###
+#############################################################
 # Packages
 library(MASS) # package needed to generate variables from a multivariate normal distribution
 library(caret) # package needed for cross-validation
@@ -13,7 +13,6 @@ library(ggplot2) # package needed for plots
 library(forcats)  # package needed for improve graphical representations
 library(rpart) # package for implementing the regression tree
 library(randomForest) # package for implementing random forest
-library(mnonr) # package for generating data from non-Normal distributions
 
 # Generate a 4-dimensional multivariate normal with names (Y,X1,X2,X3,X4), and 100 observations, 
 # with bilateral correlations
@@ -44,14 +43,11 @@ dfs<-list() # an empty list to hold the 1000 datasets
 
 # Generate 1000 different datasets
 s<-1000
-p<-5 # number of variables
-ms<-3 # skewness
-mk<-61 # kurtosis
 
 for (i in 1:s)
 {
   set.seed(i)
-  dataframe<-as.data.frame(mnonr(n,p,ms,mk,Sigma=S,initial=NULL)) # generate 10,000 observations 
+  dataframe<-as.data.frame(mvrnorm(n,mu=mu,Sigma=S)) # generate 10,000 observations 
   Y<-dataframe[,1]
   X1<-dataframe[,2]
   X2<-dataframe[,3]
@@ -127,7 +123,6 @@ for (r in 1:s)
 RGA_lin_reg<-unlist(RGA_lin_reg)
 RGA_reg_tree<-unlist(as.vector(RGA_reg_tree))
 RGA_rf_mod<-unlist(as.vector(RGA_rf_mod))
-
 
 ############################################################################################################################
 # ROBUSTNESS (SUSTAINABILITY)
@@ -401,9 +396,9 @@ RGF<-function(yhat,yhat_xg){
 }
 
 # Set the objects for the inclusion of the predictions from the full model
-pred_lin_reg<-list()
-pred_reg_tree<-list()
-pred_rf_mod<-list()
+pred_lin_reg_full<-list()
+pred_reg_tree_full<-list()
+pred_rf_mod_full<-list()
 
 # Set the objects for the inclusion of the predictions from the reduced model without 
 # the binarised X1 variable (dummy)
@@ -416,20 +411,23 @@ RGF_lin_reg_X1bin<-list()
 RGF_reg_tree_X1bin<-list() 
 RGF_rf_mod_X1bin<-list()
 
+# Binarise the X1 variable in the train and test sets
 for (r in 1:s)
 {
-  # Binarise the X1 variable in the train set
   train[[r]]$X1[train[[r]]$X1<mean(train[[r]]$X1)]<-0
   train[[r]]$X1[train[[r]]$X1>=mean(train[[r]]$X1)]<-1
   
+  test[[r]]$X1[test[[r]]$X1<mean(test[[r]]$X1)]<-0
+  test[[r]]$X1[test[[r]]$X1>=mean(test[[r]]$X1)]<-1
+  
   lin_reg<-lm(Y~.,data=train[[r]])
-  pred_lin_reg[[r]]<-lin_reg%>%predict(test[[r]])
+  pred_lin_reg_full[[r]]<-lin_reg%>%predict(test[[r]])
   
   reg_tree<-rpart(Y~.,data=train[[r]],method="anova")
-  pred_reg_tree[[r]]<-reg_tree%>%predict(test[[r]])
+  pred_reg_tree_full[[r]]<-reg_tree%>%predict(test[[r]])
   
   rf_mod<-randomForest(Y~.,data=train[[r]]) 
-  pred_rf_mod[[r]]<-rf_mod%>%predict(test[[r]]) 
+  pred_rf_mod_full[[r]]<-rf_mod%>%predict(test[[r]]) 
   
   # Deletion of X1
   lin_reg_X1bin<-lm(Y~.-X1,data=train[[r]])
@@ -441,9 +439,9 @@ for (r in 1:s)
   rf_mod_X1bin<-randomForest(Y~.-X1,data=train[[r]]) 
   pred_rf_mod_X1bin[[r]]<-rf_mod_X1bin%>%predict(test[[r]]) 
   
-  RGF_lin_reg_X1bin[[r]]<-round(RGF(pred_lin_reg[[r]],pred_lin_reg_X1bin[[r]]),3) 
-  RGF_reg_tree_X1bin[[r]]<-round(RGF(pred_reg_tree[[r]],pred_reg_tree_X1bin[[r]]),3) 
-  RGF_rf_mod_X1bin[[r]]<-round(RGF(pred_rf_mod[[r]],pred_rf_mod_X1bin[[r]]),3) 
+  RGF_lin_reg_X1bin[[r]]<-round(RGF(pred_lin_reg_full[[r]],pred_lin_reg_X1bin[[r]]),3) 
+  RGF_reg_tree_X1bin[[r]]<-round(RGF(pred_reg_tree_full[[r]],pred_reg_tree_X1bin[[r]]),3) 
+  RGF_rf_mod_X1bin[[r]]<-round(RGF(pred_rf_mod_full[[r]],pred_rf_mod_X1bin[[r]]),3) 
   
 }
 
@@ -463,7 +461,7 @@ boxplot(data,las=2,col=c("lightskyblue1","aquamarine1","khaki1",
                          "lightskyblue1","aquamarine1","khaki1",
                          "lightskyblue1","aquamarine1","khaki1"),
         
-        at=c(1,2,3, 5,6,7, 9,10,11),par(mar=c(5,4,4,2)+0.1),main="RGA, RGR, RGF: Non-Normal Distribution - Correlation matrix S2", 
+        at=c(1,2,3, 5,6,7, 9,10,11),par(mar=c(5,4,4,2)+0.1),main="RGA, RGR, RGF: Normal Distribution - Correlation matrix S2", 
         ylim=c(0,1),names=c("RGA","RGA","RGA",
                             "RGR","RGR","RGR",
                             "RGF","RGF","RGF"))
@@ -496,7 +494,7 @@ boxplot(data,las=2,col=c("royalblue","aquamarine1","khaki1",
                          "royalblue","aquamarine1","khaki1",
                          "royalblue","aquamarine1","khaki1"),
         
-        at=c(1,2,3, 5,6,7, 9,10,11, 13,14,15),par(mar=c(5,4,4,2)+0.1),main="RGE: Non-Normal Distribution - Correlation matrix S2", 
+        at=c(1,2,3, 5,6,7, 9,10,11, 13,14,15),par(mar=c(5,4,4,2)+0.1),main="RGE: Normal Distribution - Correlation matrix S2", 
         ylim=c(0,1),names=c("RGE X1","RGE X1","RGE X1",
                             "RGE X2","RGE X2","RGE X2",
                             "RGE X3","RGE X3","RGE X3",
@@ -639,7 +637,5 @@ sd_RGE_reg_tree_X4<-sd(RGE_reg_tree_X4)
 round(sd_RGE_reg_tree_X4,4)
 sd_RGE_rf_mod_X4<-sd(RGE_rf_mod_X4)
 round(sd_RGE_rf_mod_X4,4)
-
-
 
 
