@@ -27,8 +27,8 @@ concordance curves (see, e.g. [Giudici and Raffinetti 2011](https://www.scienced
 integrate all measures into an agnostic score that can be employed to assess the trustworthiness
 of any AI application.
 
-The revisited S.A.F.E. approach will be called RGB where RGB stands for “Rank Graduation
-Box”. The use of the term “box” is motivated by the need of emphasizing that our proposal is
+This S.A.F.E. approach is based on “Rank Graduation
+Box” proposed in [Babaei et al. 2024](https://www.sciencedirect.com/science/article/pii/S0957417424021067). The use of the term “box” is motivated by the need of emphasizing that our proposal is
 always in progress so that, like a box, it can be constantly filled by innovative tools addressed
 to the measurement of the new future requirements necessary for the safety condition of
 AI-systems.
@@ -43,23 +43,9 @@ pip install safeaipackage
 
 # Example
 
-In the folder "examples", we provide two notebooks related to a classification and a regression problem applied to the [employee dataset](https://search.r-project.org/CRAN/refmans/stima/html/employee.html).
+On GitHub, in the folder "examples", we present a classification and a regression problem applied to the [employee dataset](https://search.r-project.org/CRAN/refmans/stima/html/employee.html).
 
 
-# Complementary package
-
-The safeaipackage works only with scikit-learn models. Therefore, if you need to evaluate other types of models you can use the following [package](https://pypi.org/project/modelagnosticsafeaipackage/):
-
-pip install modelagnosticsafeaipackage
-
-
-# Branches
-
-There are two branches in this repository:
-
-main: includes all the functions compatible with the package
-
-sampling: Here we provide a notebook including a modified version of accuracy class in which we improve the performance of this module when huge datasets are given to the functions. To this end, considering the selected number of samples and sample size, if the number of observations in test data is higher than a selected threshold (for example 200), different samples are extracted from test data and functions are repeated and applied to all the geenrated samples to calculate the average of the results for the samples. Therefore, the given RGA and Pvalue are the average of RGA and Pvalues of the samples.
 
 # Citations
 
@@ -68,5 +54,6 @@ The proposed measures in this package came primarily out of research by
 and [Golnoosh Babaei](https://www.linkedin.com/in/golnoosh-babaei-990077187/) in the [Statistical laboratory](https://sites.google.com/unipv.it/statslab-pavia/home?authuser=0) 
 at the University of Pavia. 
 This package is based on the following papers. If you use safeaipackage in your research we would appreciate a citation to our papers:
+* [Babaei, G., Giudici, P., & Raffinetti, E. (2024). A Rank Graduation Box for SAFE AI. Expert Systems with Applications, 125239.](https://doi.org/10.1016/j.eswa.2024.125239)
 * [Giudici, P., & Raffinetti, E. (2024). RGA: a unified measure of predictive accuracy. Advances in Data Analysis and Classification, 1-27.](https://link.springer.com/article/10.1007/s11634-023-00574-2)
 * [Raffinetti, E. (2023). A rank graduation accuracy measure to mitigate artificial intelligence risks. Quality & Quantity, 57(Suppl 2), 131-150.](https://link.springer.com/article/10.1007/s11135-023-01613-y)
