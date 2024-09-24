@@ -1,7 +1,9 @@
 from safeai.enums import SafeAIStrEnum
 
+
 class Emotion(SafeAIStrEnum):
     """Emotion Labels for Sentiment Analysis"""
+
     ANGER = "anger"
     DISGUST = "disgust"
     FEAR = "fear"
@@ -10,18 +12,21 @@ class Emotion(SafeAIStrEnum):
     SURPRISE = "surprise"
     NEUTRAL = "neutral"
 
+
 class CategoryType(SafeAIStrEnum):
     """_summary_"""
+
     CONTINENT = "continent"
     COUNTRY = "country"
     STATE = "state"
     TOWN = "town"
     GENDER = "gender"
     RANDOM = "random"
-    
+
 
 class ColumnDataType(SafeAIStrEnum):
     """Data Types for Input Data Configuration"""
+
     TEXT = "text"
     INTEGER = "number"
     DECIMAL = "decimal"
@@ -34,6 +39,7 @@ class ColumnDataType(SafeAIStrEnum):
 
 class TextType(SafeAIStrEnum):
     """_summary_"""
+
     URL = "url"
     TWEET = "Tweet"
     EMAIL = "Email"
@@ -51,8 +57,10 @@ class TextType(SafeAIStrEnum):
     PASSWORD = "password"
     USERNAME = "username"
 
+
 class TimeFrequency(SafeAIStrEnum):
     """Time Frequency for Time Series Data"""
+
     DAILY = "Daily"
     WEEKLY = "Weekly"
     MONTHLY = "Monthly"

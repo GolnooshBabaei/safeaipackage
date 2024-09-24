@@ -8,7 +8,6 @@ readme = "README.md"
 [tool.poetry.dependencies]
 python = "^3.12"
 pydantic = "^2.9.1"
-torch = "^2.4.1"
 pydantic-settings = "^2.4.0"
 openai = "^1.44.1"
 transformers = "^4.44.2"
@@ -17,9 +16,8 @@ pinecone = "^5.1.0"
 streamlit = "^1.38.0"
 nltk = "^3.9.1"
 spacy = "^3.7.6"
-pycountry = "^24.6.1"
-geopy = "^2.4.1"
 pandas = "^2.2.2"
+ruff = "^0.6.7"
 
 
 [build-system]
