@@ -3,3 +3,6 @@
 #safeaipackage/main.py
 #safeaipackage/data_test.py
 examples/untitled.ipynb
+.venv/
+**__pycache__/
+.DS_Store

@@ -1,0 +1,27 @@
+[tool.poetry]
+name = "SAFEAI"
+version = "1.0"
+description = ""
+authors = []
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+pydantic = "^2.9.1"
+torch = "^2.4.1"
+pydantic-settings = "^2.4.0"
+openai = "^1.44.1"
+transformers = "^4.44.2"
+langchain = "^0.2.16"
+pinecone = "^5.1.0"
+streamlit = "^1.38.0"
+nltk = "^3.9.1"
+spacy = "^3.7.6"
+pycountry = "^24.6.1"
+geopy = "^2.4.1"
+pandas = "^2.2.2"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
