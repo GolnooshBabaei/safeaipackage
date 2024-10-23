@@ -15,6 +15,7 @@ class SafeCrew():
     def data_downloader(self) -> SafeAIAgent:
         """Validates rows in the dataset are unique"""
         return SafeAIAgent(
+            job_id=f"job_{self.safeai_config.id}",
             role = "Download CSV Data from a URL",
             goal= f"Download, validate and format the data {self.safeai_config.data}",
             backstory=f"""
@@ -30,6 +31,7 @@ class SafeCrew():
     def download_validator_task(self) -> SafeAITask:
         """Creates the Safeai crew"""
         return SafeAITask(
+            job_id=f"job_{self.safeai_config.id}",
 			description=f"Validate each row in this pandas dataframe: {self.safeai_config.data} is unique",
 			expected_output="A Json object with a boolean value indicating if the data is unique or not",
 			agent=self.data_downloader(),
@@ -40,6 +42,7 @@ class SafeCrew():
     def data_formatter_task(self) -> SafeAITask:
         """Creates the Safeai crew"""
         return SafeAITask(
+            job_id=f"job_{self.safeai_config.id}",
       		description = f"For each row in the pandas dataframe {self.safeai_config.data},\
             				the value in the target column {self.safeai_config.target} should be extracted\
                     		and stored in a list named 'y_true'",
@@ -54,6 +57,7 @@ class SafeCrew():
     def crew(self) -> SafeAICrew:
         """Creates the Safeai crew"""
         return SafeAICrew(
+            job_id=f"job_{self.safeai_config.id}",
 			agents=[self.data_downloader()],
 			tasks=[
        			self.download_validator_task(),

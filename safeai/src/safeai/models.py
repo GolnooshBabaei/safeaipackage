@@ -3,10 +3,10 @@ from uuid import uuid4
 from functools import cached_property
 from enum import Enum
 from requests import head
-from typing import Self, Optional
-from pydantic import BaseModel, computed_field, AnyUrl, Field, model_validator, UUID4
+from typing import Self
+from pydantic import BaseModel, computed_field, Field, model_validator
 from pandas import DataFrame, read_csv, get_dummies, concat
-from crewai import Agent, Crew, Process, Task
+from crewai import Agent, Crew, Task
 
 os.environ["CREWAI_TELEMETRY_OPT_OUT"] = "true"
 os.environ["OTEL_SDK_DISABLED"] = "true"
@@ -23,6 +23,7 @@ class ClassifierType(str, Enum):
 
 class SafeAIAgent(Agent):
     """_summary_"""
+    job_id: str
     @computed_field
     @property
     def agent_id(self) -> str:
@@ -30,7 +31,7 @@ class SafeAIAgent(Agent):
 
 class SafeAITask(Task):
     """_summary_"""
-
+    job_id: str
     @computed_field
     @property
     def task_id(self) -> str:
@@ -39,7 +40,7 @@ class SafeAITask(Task):
     
 class SafeAICrew(Crew):
     """_summary_"""
-    
+    job_id: str
     @computed_field
     @property
     def crew_id(self) -> str:
