@@ -1,19 +1,15 @@
-from safeai.models import (
-    SafeAIJobConfig,
-    SafeAIAgent,
-)
+from safeai.base import SafeAIAgent, SafeAIJob
 
 
 class SafeAIAgents:
-    """_summary_"""
+    """_summary_: Class for Creating Agents. Creates Agents for the SafeAI Experiment"""
 
-    def __init__(self, safeai_config: SafeAIJobConfig) -> None:
+    def __init__(self, safeai_config: SafeAIJob) -> None:
         self.safeai_config = safeai_config
 
     def data_downloader_agent(self) -> SafeAIAgent:
         """Validates rows in the dataset are unique"""
         return SafeAIAgent(
-            job_id=f"job_{self.safeai_config.id}",
             role="Download and Validate Data from a URL",
             goal=f"""
                 Validate, extract target column and count missing
@@ -22,7 +18,7 @@ class SafeAIAgents:
             backstory=f"""
                 You are a seasoned data scientist with a keen eye for detail.
                 You have downloaded the data from the source {self.safeai_config.source}
-                and stored it in the pandas dataframe {self.safeai_config.data}. You will
+                and stored it in the pandas dataframe {self.safeai_config.read_source}. You will
                 refer to this dataframe as 'safeai_dataset'. 
                 A dataframe is a 2-dimensional labeled data structure with rows and columns 
                 of potentially different types. Each row in a dataframe is a unique record. 
@@ -57,4 +53,3 @@ class SafeAIAgents:
     def responsible_ai_agent(self) -> SafeAIAgent:
         """Responsible for the entire process"""
         raise NotImplementedError("This method is not implemented")
-
