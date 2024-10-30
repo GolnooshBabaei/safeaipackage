@@ -2,36 +2,131 @@
 
 The increasing widespread of Artificial Intelligence (AI) applications implies the formalisa-
 tion of an AI risk management model which needs methodological guidelines for an effec-
-tive implementation. To fill the gap, [Giudici and Raffinetti (2023)](https://www.sciencedirect.com/science/article/pii/S1544612323004609) 
-introduced a S.A.F.E.
-risk management model which derives from the proposed international regulations four main
-compliance principles: Security, Accuracy, Fairness and Explainability, that can be measured
-for any AI application. The primary motivation for developing safeaipackage is providing a
-unified framework that can evaluate these AI risks.
-The important aspect of the S.A.F.E. model is that it proposes metrics that are interrelated,
-are standardised, and have a common mathematical root: the Lorenz Zonoid tool (see, e.g. [Koshevoy and Mosler 1996](https://www.tandfonline.com/doi/abs/10.1080/01621459.1996.10476955); [Lorenz 1905](https://link.springer.com/article/10.1007/s11135-023-01613-y)). 
-Despite the advantages deriving from the S.A.F.E
-approach, it suffers from being computationally intensive as it requires the construction of
-all the models’ configurations. Moreover, the recent regulatory debate has further expanded
-the notion of Security, distinguishing the internal resilience of an AI system: its robustness;
-from the external resilience of the ecosystem which surrounds it: environmental, social and
-governance sustainability see, e.g. [International Standard Organisation 2023](https://www.iso.org/standard/77304.html).
-In line with this evolution and the need of providing a unified and computationally efficient
-method, in this contribution we suggest to combine different statistical metrics able to measure
-the Security (robustness), Accuracy, Fairness and Explainability of highly complex machine
-learning models. We remark that the definition of robustness that we adopt in this paper
-derives from that being employed by AI regulators and standard setters, for which an AI
-system should achieve an appropriate level of robustness, to be resilient to internal anomalies
-and external attacks. For consistency, the proposed measures will be based on the Lorenz and
-concordance curves (see, e.g. [Giudici and Raffinetti 2011](https://www.sciencedirect.com/science/article/pii/S0167715210002816?casa_token=vmope_BDFxcAAAAA:82Klf9ITRpkb7580mnvxfebtLu-SaTcuhpJKnqq6OeF3NtW-xmy5acHsUUJuhGUzkALZUBYX1g)). This will allow to
-integrate all measures into an agnostic score that can be employed to assess the trustworthiness
-of any AI application.
-
-This S.A.F.E. approach is based on “Rank Graduation
+tive implementation. The base of this package is the S.A.F.E. AI metrics in the “Rank Graduation
 Box” proposed in [Babaei et al. 2024](https://www.sciencedirect.com/science/article/pii/S0957417424021067). The use of the term “box” is motivated by the need of emphasizing that our proposal is
 always in progress so that, like a box, it can be constantly filled by innovative tools addressed
 to the measurement of the new future requirements necessary for the safety condition of
 AI-systems.
+
+This package includes different modules, each proposed to measure one of the considered AI ethics in this project (Accuacy, Explainability, Fairness and Robustness). The core metric proposed in this framework is Rank Graduation Accuracy (RGA) which is an extention of AUC. However, RGA is not only applicable for classification models but also for regression models. The modules available in this package are as follows:
+
+### Core
+
+This module is the core of safeaipackage. In particular, using rga function from this module, it is possible to calculate __Rank Graduation Accuracy (RGA)__ metric which is the base concept for the calculation of the other metrics.
+
+__Functions:__
+
+rga(y, yhat)
+
+This function compares ranks of the actual values with ranks of the predicted values. Therefore, in the case of the equality between the ranks, RGA is equal to one (the best case). In general, RGA gets values between 0 and 1.
+
+- **Parameters**:
+    - `y`: Actual response values 
+    - `yhat`: Predicted probabilities
+
+- **Returns**: RGA value
+
+
+### check_explainability
+
+This module includes three functions to measure contribution of the variables in three different settings. In particular, using the functions available in check_accuracy module, it is possible to calculate __Rank Graduation Explainability (RGE)__ metric which is base on RGA.  
+
+__Functions:__
+
+1. compute_single_variable_rge(xtrain, xtest, yhat, model, variables)
+
+This function calculates RGE for each single considered variable. In particular, this function compares ranks of the predicted values by the model including all the effects of all the variables with the ranks of the predicted values by the model excluding the effect of the selected variable. When RGE is equal to 1, it shows a variable with a high contribution to the model. while when it is equal to 0, there is no contribution to the predictions.
+
+- **Parameters**:
+    - `xtrain`: Train data
+    - `xtest`: Test data
+    - `yhat`: Predicted probabilities  
+    - `model`: A trained model, which could be a classifier or regressor.
+    - `variables`: List of variables 
+    
+- **Returns**: RGE value for each of the selected variables
+
+
+2. compute_group_variable_rge(xtrain, xtest, yhat, model, variables)
+
+This function calculates contribution of a group of variables. In other words, using this function it is possible to evaluate how predicted values change when the effect of a group of variables is discarded. 
+
+- **Parameters**:
+    - `xtrain`: Train data
+    - `xtest`: Test data
+    - `yhat`: Predicted probabilities  
+    - `model`: A trained model, which could be a classifier or regressor.
+    - `variables`: List of variables 
+    
+- **Returns**: RGE value for the selected group of the variables
+
+
+3. compute_full_single_rge(xtrain, xtest, yhat, model)
+
+This function calculates contribution of all variables. 
+
+- **Parameters**:
+    - `xtrain`: Train data
+    - `xtest`: Test data
+    - `yhat`: Predicted probabilities  
+    - `model`: A trained model, which could be a classifier or regressor.    
+    
+- **Returns**: RGE values for all variables
+
+
+### check_fairness
+
+This module provides model imparity analysis. Using the function in this module, the difference between RGA of the model in the two protected groups is measured. The protected variable is supposed to be a binary categorical variable (referring to privileged and unprivileged groups).
+
+__Functions:__
+
+1. compute_rga_parity(xtrain, xtest, ytest, yhat, model, protectedvariable)
+
+This function calculates RGA values for the protected groups considering the given protected variable. 
+
+- **Parameters**:
+    - `xtrain`: Train data
+    - `xtest`: Test data
+    - `ytest`: Actual response values
+    - `yhat`: Predicted probabilities  
+    - `model`: A trained model, which could be a classifier or regressor.
+    - `protectedvariable`: Protected (sensitive) variable which is a binary categorical variable
+    
+    
+- **Returns**: Difference between the RGA values in each protected group
+
+
+### check_robustness
+
+This module includes two functions to measure robustness of the model towards the perturbations applied to the variables. In particular, using the functions available in check_robustness module, it is possible to calculate __Rank Graduation Robustness (RGR)__ metric which is base on RGA.  
+
+__Functions:__
+
+1. compute_single_variable_rgr(xtest, yhat, model, variables, perturbation_percentage= 0.05)
+
+This function calculates RGR for each single considered variable. In other words, this function compares ranks of the predicted values by the model including the original values of the variables with the ranks of the predicted values by the model including the selected perturbed variable. When RGR is equal to 1, it shows that the model is completely robust to the variable perturbations.When RGR is equal to 0, model is not robust.
+
+- **Parameters**:
+    - `xtest`: Test data
+    - `yhat`: Predicted probabilities  
+    - `model`: A trained model, which could be a classifier or regressor.
+    - `variables`: List of variables 
+    - `perturbation_percentage`: The percentage for perturbation process
+    
+- **Returns**: RGR value for each of the selected variables
+
+
+2. compute_full_single_rgr(xtest, yhat, model, perturbation_percentage= 0.05)
+
+This function calculates robustness of the model for all the variables. 
+
+- **Parameters**:
+    - `xtest`: Test data
+    - `yhat`: Predicted probabilities  
+    - `model`: A trained model, which could be a classifier or regressor.
+    - `perturbation_percentage`: The percentage for perturbation process
+       
+- **Returns**: RGR values for all variables
 
 
 # Install
@@ -41,9 +136,16 @@ Simply use:
 pip install safeaipackage
 
 
+
 # Example
 
-On GitHub, in the folder "examples", we present a classification and a regression problem applied to the [employee dataset](https://search.r-project.org/CRAN/refmans/stima/html/employee.html).
+In the folder "examples", we present a classification and a regression problem applied to the [employee dataset](https://search.r-project.org/CRAN/refmans/stima/html/employee.html).
+
+
+
+# Support
+
+If you need help or have any questions, the first step should be to take a look at the docs. If you can't find an answer, please open an issue on GitHub, or send an email to golnoosh.babaei@unipv.it. 
 
 
 
