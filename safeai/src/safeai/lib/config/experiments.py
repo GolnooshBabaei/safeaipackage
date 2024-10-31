@@ -5,6 +5,9 @@ from crewai import Process
 from safeai.base import SafeAICrew, SafeAIExperiment
 from safeai.lib.config.tasks import SafeAITasks
 from safeai.lib.jobs.tabular import TabularJob
+from safeai.lib.experimentation.metrics.explainability import Explainability
+from safeai.lib.experimentation.metrics.fairness import Fairness
+from safeai.lib.experimentation.metrics.robustness import Robustness
 
 
 class TabularExperiment(SafeAIExperiment):
@@ -35,6 +38,30 @@ class TabularExperiment(SafeAIExperiment):
             memory=True,
             full_output=True,
         )
+
+    @cached_property
+    def explainability(self):
+        """_summary_: Returns the explainability of the experiment"""
+        return Explainability(experiment_job=self.experiment_job)
+
+    @cached_property
+    def fairness(self):
+        """_summary_: Returns the fairness of the experiment"""
+        return Fairness(experiment_job=self.experiment_job)
+
+    @cached_property
+    def robustness(self):
+        """_summary_: Returns the robustness of the experiment"""
+        return Robustness(experiment_job=self.experiment_job)
+
+    @cached_property
+    def metrics(self):
+        """_summary_: Returns the metrics of the experiment"""
+        return {
+            "explainability": self.explainability.model_dump(),
+            "fairness": self.fairness.model_dump(),
+            "robustness": self.robustness.model_dump(),
+        }
 
 
 class TextExperiment(SafeAIExperiment):

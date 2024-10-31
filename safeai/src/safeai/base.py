@@ -115,7 +115,7 @@ class SafeAIJob(BaseModel):
         return self
 
     @cached_property
-    def train_test_data(self) -> list:
+    def train_test_data(self) -> list[DataFrame]:
         """_summary_: Splits @self.data into training and testing sets"""
         return train_test_split(self.data, test_size=self.test_size)
 
@@ -129,6 +129,26 @@ class SafeAIJob(BaseModel):
     @abstractmethod
     def data(self) -> DataFrame:
         """_summary_: Returns the Pandas DataFrame with data for experiment"""
+        raise NotImplementedError("This method is not implemented")
+
+    @cached_property
+    def x_train(self) -> DataFrame:
+        """_summary_: Returns the training data"""
+        raise NotImplementedError("This method is not implemented")
+
+    @cached_property
+    def x_test(self) -> DataFrame:
+        """_summary_: Returns the testing data"""
+        raise NotImplementedError("This method is not implemented")
+
+    @cached_property
+    def y_train(self) -> DataFrame:
+        """_summary_: Returns the training target"""
+        raise NotImplementedError("This method is not implemented")
+
+    @cached_property
+    def y_test(self) -> DataFrame:
+        """_summary_: Returns the testing target"""
         raise NotImplementedError("This method is not implemented")
 
 
@@ -179,6 +199,11 @@ class SafeAIExperiment(BaseModel):
         if self.experiment_status == "Running":
             return None
         return datetime.now()
+
+    @abstractmethod
+    def metrics(self) -> Any:
+        """_summary_: Returns the metric for the experiment"""
+        raise NotImplementedError("This method is not implemented")
 
 
 T_Experiment = TypeVar("T_Experiment", bound=SafeAIExperiment)

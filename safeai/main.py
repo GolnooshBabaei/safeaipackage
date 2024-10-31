@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
 
-from src.main import Experimentation
+from src.safeai.lib.experimentation.experimentation import Experimentation
 from src.safeai.enums import ExperimentDataType
 from src.safeai.lib.jobs.tabular import TabularJob
 from src.safeai.lib.config.experiments import TabularExperiment
@@ -65,7 +65,7 @@ if st.session_state.get("submitted_experiment_config", False):
                     with st.spinner("Running Experiment"):
                         results = experimentation.start_experiment()
                     if results:
-                        st.write(experimentation.get_experiment_outputs(results))
+                        st.json(experimentation.get_experiment_outputs(results))
 
     if st.session_state.get("experiment_type") == ExperimentDataType.IMAGE:
         configure.empty()

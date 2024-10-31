@@ -6,17 +6,18 @@ from safeai.base import T_Experiment
 
 
 class Experimentation(Generic[T_Experiment]):
+    """_summary_: A class to handle the experimentation of a model"""
+
     def __init__(self, experiment: T_Experiment) -> None:
         self.experiment = experiment
 
     def start_experiment(self) -> Iterator[CrewOutput]:
+        """_summary_: Starts the experiment"""
         with ThreadPoolExecutor() as iterator:
             results = iterator.map(
                 self.experiment.job.kickoff,
                 [
-                    {
-                        "iteration": iteration,
-                    }
+                    {"iteration": iteration}
                     for iteration in range(self.experiment.experiment_iterations)
                 ],
             )
@@ -40,6 +41,7 @@ class Experimentation(Generic[T_Experiment]):
                     }
                     for t in self.experiment.job.tasks
                 ],
+                "metrics": self.experiment.metrics,
             }
             for index, result in enumerate(results)
         ]
