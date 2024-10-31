@@ -1,7 +1,7 @@
 from functools import cached_property
 from typing import Callable, Self
 
-from pydantic import Field, model_validator
+from pydantic import Field, model_validator, computed_field
 from pandas import DataFrame, read_csv, get_dummies, concat
 
 from sklearn.model_selection import train_test_split
@@ -10,17 +10,14 @@ from safeai.enums import ModelClassifier
 from safeai.base import SafeAIJob
 
 
-
-class SafeAITabularJob(SafeAIJob):
+class TabularJob(SafeAIJob):
     """_summary_
 
     Model executes steps we need to control and sends output to the crew
 
     """
 
-    column_names: list[str] | None = Field(
-        default=None, description="Columns in the dataset"
-    )
+    new_cols: str = Field(default=None, description="Columns in the dataset")
     drops: list[str] | None = Field(
         default=None, description="Columns to drop from the dataset"
     )
@@ -34,7 +31,7 @@ class SafeAITabularJob(SafeAIJob):
     delimeter: str | None = Field(
         default=None, description="The delimeter of the dataset"
     )
-    header: int = Field(default=0, description="The header of the dataset")
+    header: int | None = Field(default=None, description="The header of the dataset")
     classifier: ModelClassifier = Field(
         default=ModelClassifier.LOGISTIC_REGRESSION,
         description="The classifier to use for the classification task",
@@ -49,29 +46,34 @@ class SafeAITabularJob(SafeAIJob):
         default=None, description="The function to clean the dataset"
     )
 
+    @computed_field
+    @property
+    def column_names(self) -> list[str] | None:
+        """_summary_: Returns the column names"""
+        return self.new_cols.split(",") if self.new_cols else None
+
     @cached_property
     def read_source(self) -> DataFrame:
         """_summary_: Reads the source"""
-        _data = read_csv(
-            str(self.source),
-            sep=self.sep,
-            delimiter=self.delimeter,
-            header=self.header
-        )
+        _data = read_csv(str(self.source), sep=self.sep)
         if self.column_names:
             _data.columns = self.column_names
         return _data
 
-    @cached_property
     def dummies(self) -> DataFrame:
         """_summary_: Encodes columns in @self.encodes"""
         # TODO: Detrmine the type of encoding to use based on the number of unique values in the column
-        return get_dummies(self.read_source, columns=self.encodes)
+        dummy_cols = self.read_source[self.encodes].select_dtypes(include=["object"])
+        return get_dummies(dummy_cols)
 
     @cached_property
     def cleaned(self) -> DataFrame:
         """_summary_: Cleans and encodes @self.read_source"""
         _data = self.read_source
+
+        if self.encodes:
+            _data = _data.drop(columns=self.encodes, errors="ignore", axis=1)
+            _data = concat([_data, self.dummies()], axis=1)
 
         if self.keeps:
             _data = _data[self.keeps]
@@ -82,9 +84,7 @@ class SafeAITabularJob(SafeAIJob):
         if self.balance_target:
             # TODO: Implement balancing of target column
             pass
-        if self.encodes:
-            _data = _data.drop(columns=self.encodes, errors="ignore", axis=1)
-            _data = concat([_data, self.dummies], axis=1)
+
         return _data
 
     @cached_property
@@ -114,7 +114,7 @@ class SafeAITabularJob(SafeAIJob):
         """_summary_"""
 
         if self.column_names and len(self.column_names) != len(
-            self.read_source.columns
+            self.read_source.columns.to_list()
         ):
             raise ValueError(f"""
                 The number of column names {len(self.column_names)} does not match 
@@ -122,7 +122,7 @@ class SafeAITabularJob(SafeAIJob):
                 {len(self.column_names)} != {len(self.read_source.columns)}\n.
             """)
 
-        if self.target not in self.read_source.columns:
+        if self.target not in self.read_source.columns.to_list():
             raise ValueError(f"""
                 The specfied target column {self.target} was not found in available
                 columns: {self.read_source.columns}.
@@ -154,4 +154,3 @@ class SafeAITabularJob(SafeAIJob):
 
         # TODO: Validate all columns to encode are categorical and with varied values
         return self
-    

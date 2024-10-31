@@ -1,22 +1,19 @@
-from abc import abstractmethod
-from functools import cached_property
 import os
+from uuid import uuid4
 from datetime import datetime
-from pathlib import Path
+from abc import abstractmethod
 
-from typing import Any, Self
+from functools import cached_property
+from typing import Any, Self, TypeVar
 from pydantic import BaseModel, computed_field, Field, model_validator
 
-from pandas import DataFrame
 from requests import head
+from pandas import DataFrame
 
 from sklearn.model_selection import train_test_split
 from crewai import Agent, Crew, Task
 
-os.environ["CREWAI_TELEMETRY_OPT_OUT"] = "true"
-os.environ["OTEL_SDK_DISABLED"] = "true"
-
-base = Path(__file__).parent.stem
+from safeai.enums import ExperimentDataType, SafeAILLMS
 
 
 def output_object_factory(properties: list[tuple[str, type]]) -> type[BaseModel] | None:
@@ -92,38 +89,15 @@ class SafeAIJob(BaseModel):
 
     """
 
-    name: str = Field(default="SafeAIJobConfig", description="The name of the job")
+    @cached_property
+    def job_id(self) -> str:
+        """_summary_: Create an UUID4 ID for new Jobs"""
+        return f"job_{str(uuid4())}"
+
     source: str = Field(..., description="URL to the dataset")
     test_size: float = Field(default=0.2, description="The size of the test dataset")
     target: str = Field(
         default=None, description="The target column for the classification task"
-    )
-
-    job: SafeAICrew = Field(
-        default_factory=lambda: SafeAICrew(
-            agents=[
-                SafeAIAgent(
-                    role="Greet World",
-                    goal="Say Hello World",
-                    backstory="Alien lands on Earth",
-                )
-            ],
-            tasks=[
-                SafeAITask(
-                    job_id="job_1",
-                    agent_id="agent_1",
-                    expected_output="Hello World",
-                    description="Hello World",
-                    agent=SafeAIAgent(
-                        role="Greet World",
-                        goal="Say Hello World",
-                        backstory="Alien lands on Earth",
-                    ),
-                )
-            ],
-            verbose=True,
-        ),
-        description="The job id",
     )
 
     @model_validator(mode="after")
@@ -157,3 +131,55 @@ class SafeAIJob(BaseModel):
     def data(self) -> DataFrame:
         """_summary_: Returns the Pandas DataFrame with data for experiment"""
         raise NotImplementedError("This method is not implemented")
+
+
+class SafeAIExperiment(BaseModel):
+    """_summary_: Class for Creating Experiments"""
+
+    @computed_field
+    @property
+    def experiment_id(self) -> str:
+        """_summary_: Create an UUID4 ID for new Experiments"""
+        return f"exp_{str(uuid4())}"
+
+    experiment_job: SafeAIJob
+
+    experiment_name: str = Field(
+        default="A Name for the experiment", description="The name of the experiment"
+    )
+
+    experiment_iterations: int = Field(
+        default=10, description="The number of iterations for the experiment"
+    )
+
+    experiment_llm: SafeAILLMS = Field(
+        default=SafeAILLMS.GPT2, description="The LLM for the experiment"
+    )
+
+    experiment_type: ExperimentDataType = Field(
+        default=ExperimentDataType.TABULAR,
+        description="The type of data for the experiment",
+    )
+
+    @computed_field
+    @property
+    def experiment_start(self) -> datetime:
+        """_summary_: The start time of the experiment"""
+        return datetime.now()
+
+    @computed_field
+    @property
+    def experiment_status(self) -> str:
+        """_summary_: The status of the experiment"""
+        return "Running"
+
+    @computed_field
+    @property
+    def experiment_end(self) -> datetime | None:
+        """_summary_: The end time of the experiment"""
+        if self.experiment_status == "Running":
+            return None
+        return datetime.now()
+
+
+T_Experiment = TypeVar("T_Experiment", bound=SafeAIExperiment)

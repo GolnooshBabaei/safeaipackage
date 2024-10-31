@@ -5,12 +5,31 @@ from safeai.lib.config.agents import SafeAIAgents
 class SafeAITasks(SafeAIAgents):
     """_summary_: Base Class for Creating Tasks"""
 
+    def experiment_logger_task(self) -> SafeAITask:
+        """Logs the current iteration of the experiment"""
+        agent = self.experiment_configuration_agent()
+        return SafeAITask(
+            job_id=self.safeai_job.job_id,
+            agent_id=agent.agent_id,
+            description="""
+                Return a json object with 1 key value pairs for
+                experiment configuration for the current experiment iteration.
+                    
+            """,
+            expected_output="""A json object with the following keys and values:
+                - iteration: ```{iteration}```
+""",
+            agent=agent,
+            output_name="ExperimentConfigOutput",
+            output_json=output_object_factory([("iteration", int)]),
+        )
+
     def data_validator_task(self) -> SafeAITask:
         """Validates the data at @source"""
-        
+
         agent = self.data_downloader_agent()
         return SafeAITask(
-            job_id=self.safeai_config.job.job_id,
+            job_id=self.safeai_job.job_id,
             agent_id=agent.agent_id,
             description="""
                 A dataframe that has all unique rows, has no 2 or more rows
@@ -36,19 +55,18 @@ class SafeAITasks(SafeAIAgents):
             output_json=output_object_factory(
                 [("is_unique", bool), ("total_duplicate_rows", int)]
             ),
-            output_file=f"{self.safeai_config.job.artefact_path}/unique.json",
         )
 
     def data_target_extract_task(self) -> SafeAITask:
         """Extracts the target column from the dataset"""
-        
+
         agent = self.data_downloader_agent()
         return SafeAITask(
-            job_id=self.safeai_config.job.job_id,
+            job_id=self.safeai_job.job_id,
             agent_id=agent.agent_id,
             description=f"""
                     For each row in the pandas dataframe 'safeai_dataset', the value in the target 
-                    column {self.safeai_config.target} should be extracted and stored in a
+                    column {self.safeai_job.target} should be extracted and stored in a
                     list named 'y_true'.
                     
                     The list 'y_true' should contain the value of the target column for each row in
@@ -63,15 +81,14 @@ class SafeAITasks(SafeAIAgents):
             agent=agent,
             output_name="DataFormatterOutput",
             output_json=output_object_factory([("y_true", list[str])]),
-            output_file=f"{self.safeai_config.job.artefact_path}/ytrue.json",
         )
 
     def data_nan_counter_task(self) -> SafeAITask:
         """Counts the number of missing values in the dataset"""
-        
+
         agent = self.data_downloader_agent()
         return SafeAITask(
-            job_id=self.safeai_config.job.job_id,
+            job_id=self.safeai_job.job_id,
             agent_id=agent.agent_id,
             description="""
                     On each row in the pandas dataframe 'safeai_dataset', there might be missing values.
@@ -95,9 +112,9 @@ class SafeAITasks(SafeAIAgents):
                     of json objects in 'nans' should be equal to the number of rows in 'safeai_dataset'.
             """,
             expected_output="""
-                    A json object with one key: 'nans'. The value of 'nans' is the 'nans' list.
+                    A json object with one key: 'nans'. The value of 'nans' should be a list.
                     
-                    Each json object in the 'nans' list should have 2 keys and correspond to 
+                    Each nested json object in 'nans' should have 2 keys and correspond to 
                     one row in 'safeai_dataset'. Each key should have a value. 
                     The first key is 'row_index'. The value for 'row_index' is an integer that
                     represents the index of that row in 'safeai_dataset'.
@@ -109,5 +126,4 @@ class SafeAITasks(SafeAIAgents):
             agent=agent,
             output_name="DataMissingValuesOutput",
             output_json=output_object_factory([("nans", list[dict[str, list[str]]])]),
-            output_file=f"{self.safeai_config.job.artefact_path}/nans.json",
         )
