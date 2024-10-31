@@ -3,3 +3,5 @@
 #safeaipackage/main.py
 #safeaipackage/data_test.py
 examples/untitled.ipynb
+.venv/
+**__pycache__/
