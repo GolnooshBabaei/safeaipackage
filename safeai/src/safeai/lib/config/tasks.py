@@ -17,14 +17,13 @@ class SafeAITasks(SafeAIAgents):
                     
             """,
             expected_output="""A json object with the following keys and values:
-                - iteration: ```{iteration}```
-""",
+                - iteration: ```{iteration}```""",
             agent=agent,
             output_name="ExperimentConfigOutput",
-            output_json=output_object_factory([("iteration", int)]),
+            output_json=output_object_factory([("test_agent", int)]),
         )
 
-    def data_validator_task(self) -> SafeAITask:
+    def data_unique_validator_task(self) -> SafeAITask:
         """Validates the data at @source"""
 
         agent = self.data_downloader_agent()
@@ -55,6 +54,43 @@ class SafeAITasks(SafeAIAgents):
             output_json=output_object_factory(
                 [("is_unique", bool), ("total_duplicate_rows", int)]
             ),
+        )
+
+    def data_column_text_describer_task(self) -> SafeAITask:
+        """Describes the data in each column of the dataset"""
+
+        agent = self.data_downloader_agent()
+        return SafeAITask(
+            job_id=self.safeai_job.job_id,
+            agent_id=agent.agent_id,
+            description=f"""
+                For each column in the pandas dataframe 'safeai_dataset', you are tasked with 
+                creating a 100 word paragraph that describes the data in that column.
+                these are the column names in 'safeai_dataset': {self.safeai_job.data.columns}.
+                
+                The paragraph should describe the data in the column in detail. The paragraph
+                should describe the data type of the column, the range of values in the column,
+                the number of missing values in the column, the number of unique values in the
+                column, and any other relevant information about the data in the column.
+                
+                You must create a paragraph for each column in 'safeai_dataset'. The total
+                number of paragraphs should be equal to the number of columns in 'safeai_dataset'.
+                There are {self.safeai_job.data.shape[1]} columns in 'safeai_dataset'.
+            """,
+            expected_output="""
+                A json object with one key: value pair:
+                    - descriptions: The value of 'descriptions' is list of json objects, each with
+                    two key: value pairs:
+                        - column_name: The name of the column being described on 'safeai_dataset'.
+                        - description: The human readable column description paragraph generated
+                        for the column.
+
+                The total number of items in the 'descriptions' list should be equal to the number 
+                of columns in the dataframe.
+            """,
+            agent=agent,
+            output_name="DataColumnDescriptionOutput",
+            output_json=output_object_factory([("descriptions", list[dict[str, str]])]),
         )
 
     def data_target_extract_task(self) -> SafeAITask:

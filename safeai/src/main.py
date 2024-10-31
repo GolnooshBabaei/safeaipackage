@@ -31,7 +31,6 @@ class Experimentation(Generic[T_Experiment]):
                 "job_id": self.experiment.job.job_id,
                 "crew_id": str(self.experiment.job.id),
                 "experiment_id": self.experiment.experiment_id,
-                "experiment_name": self.experiment.experiment_name,
                 "iteration": index + 1,
                 "tasks": [
                     {

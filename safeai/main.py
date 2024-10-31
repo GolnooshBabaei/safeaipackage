@@ -27,8 +27,8 @@ with st.sidebar:
         if _experiment_config_button:
             st.session_state["submitted_experiment_config"] = True
 
-configure, source_tab, results_tab = st.tabs(
-    ["Configure Experiment", "Source", "Results"]
+configure, source_tab, results_tab, charts_tab = st.tabs(
+    ["Experiment", "Data", "Output", "Charts"]
 )
 
 if st.session_state.get("submitted_experiment_config", False):

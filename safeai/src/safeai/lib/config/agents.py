@@ -27,16 +27,16 @@ class SafeAIAgents:
     def data_downloader_agent(self) -> SafeAIAgent:
         """Validates rows in the dataset are unique"""
         return SafeAIAgent(
-            role="Download and Validate Data from a URL",
-            goal=f"""
-                Validate, extract target column and count missing
-                values in data at URL {self.safeai_job.source}
+            role="Validate and describe Data Downloaded from a URL",
+            goal="""
+                Validate data in a dataframe and create a 100 word paragraph
+                that describes the data in each column of the dataframe.
             """,
             backstory=f"""
                 You are a seasoned data scientist with a keen eye for detail.
                 You have downloaded the data from the source {self.safeai_job.source}
-                and stored it in the pandas dataframe {self.safeai_job.read_source}. You will
-                refer to this dataframe as 'safeai_dataset'. 
+                and stored it in the pandas dataframe {self.safeai_job.read_source}.
+                You will refer to this dataframe as 'safeai_dataset'. 
                 A dataframe is a 2-dimensional labeled data structure with rows and columns 
                 of potentially different types. Each row in a dataframe is a unique record. 
                 A row has a value for each column in the dataframe. A column in a dataframe
@@ -44,12 +44,13 @@ class SafeAIAgents:
                 a dataframe are called features.
                 
                 Your dataframe 'safeai_dataset' has {self.safeai_job.data.shape[0]}
-                rows and {self.safeai_job.data.shape[1]} columns. The columns in 'safeai_dataset'
-                are {self.safeai_job.data.columns}.
+                rows and {self.safeai_job.data.shape[1]} columns. The columns in
+                'safeai_dataset' are {self.safeai_job.data.columns}.
                 
                 You are now tasked with validating that each row in a dataframe is unique,
-                extracting the target column, {self.safeai_job.target} and counting the
-                number of missing values in the dataframe.
+                counting the number of rows in the dataframe that are duplicates and 
+                creating a 100 word paragragh that describes the data contained in each column
+                of the dataframe.
             """,
             # llm=somellm,
             #

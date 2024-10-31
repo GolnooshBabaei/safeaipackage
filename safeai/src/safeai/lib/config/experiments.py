@@ -27,7 +27,8 @@ class TabularExperiment(SafeAIExperiment):
             ],
             tasks=[
                 self.tasks.experiment_logger_task(),
-                self.tasks.data_validator_task(),
+                self.tasks.data_unique_validator_task(),
+                self.tasks.data_column_text_describer_task(),
             ],
             process=Process.sequential,
             verbose=True,
