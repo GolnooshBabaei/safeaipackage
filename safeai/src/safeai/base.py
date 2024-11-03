@@ -7,7 +7,7 @@ from typing import Any, Self, TypeVar
 from pydantic import BaseModel, computed_field, Field, model_validator
 
 from requests import head
-from pandas import DataFrame
+from pandas import DataFrame, Series
 
 from sklearn.model_selection import train_test_split
 from crewai import Agent, Crew, Task
@@ -113,11 +113,23 @@ class SafeAIJob(BaseModel):
         except Exception as e:
             raise ValueError("An error occurred while downloading the data") from e
         return self
+    
+    @cached_property
+    def y(self) -> Series:
+        """_summary_: Returns the target column"""
+        return self.data[self.target]
+
+    @cached_property
+    def x(self) -> DataFrame:
+        """_summary_: Returns the feature columns"""
+        return self.data.drop(columns=[self.target])
 
     @cached_property
     def train_test_data(self) -> list[DataFrame]:
         """_summary_: Splits @self.data into training and testing sets"""
-        return train_test_split(self.data, test_size=self.test_size)
+        return train_test_split(
+            self.x, self.y, test_size=self.test_size, random_state=42
+        )
 
     @cached_property
     @abstractmethod
@@ -130,26 +142,26 @@ class SafeAIJob(BaseModel):
     def data(self) -> DataFrame:
         """_summary_: Returns the Pandas DataFrame with data for experiment"""
         raise NotImplementedError("This method is not implemented")
-
+    
     @cached_property
-    def x_train(self) -> DataFrame:
+    def xtrain(self) -> DataFrame:
         """_summary_: Returns the training data"""
-        raise NotImplementedError("This method is not implemented")
+        return self.train_test_data[0]
 
     @cached_property
-    def x_test(self) -> DataFrame:
+    def xtest(self) -> DataFrame:
         """_summary_: Returns the testing data"""
-        raise NotImplementedError("This method is not implemented")
+        return self.train_test_data[1]
 
     @cached_property
-    def y_train(self) -> DataFrame:
+    def ytrain(self) -> DataFrame:
         """_summary_: Returns the training target"""
-        raise NotImplementedError("This method is not implemented")
+        return self.train_test_data[2]
 
     @cached_property
-    def y_test(self) -> DataFrame:
+    def ytest(self) -> DataFrame:
         """_summary_: Returns the testing target"""
-        raise NotImplementedError("This method is not implemented")
+        return self.train_test_data[3]
 
 
 T_Job = TypeVar("T_Job", bound=SafeAIJob)
@@ -176,8 +188,9 @@ class SafeAIExperiment(BaseModel):
         default=10, description="The number of iterations for the experiment"
     )
 
-    experiment_llm: SafeAILLMS = Field(
-        default=SafeAILLMS.GPT2, description="The LLM for the experiment"
+    experiment_llm: list[SafeAILLMS] = Field(
+        default=[SafeAILLMS.GPT2],
+        description="The LLM for the experiment"
     )
 
     experiment_type: ExperimentDataType = Field(

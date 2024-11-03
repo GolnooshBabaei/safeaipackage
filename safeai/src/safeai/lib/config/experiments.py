@@ -62,7 +62,8 @@ class TabularExperiment(SafeAIExperiment):
     def metrics(self):
         """_summary_: Returns the metrics of the experiment"""
         return {
-            "rga": self.explainability.rga,
+            "rga": self.fairness.rga,
+            "fairness": self.fairness.compute_rga_parity
         }
 
 
@@ -74,6 +75,7 @@ class TextExperiment(SafeAIExperiment):
         """_summary_: Create a new SafeAI Task Configuration"""
         raise NotImplementedError("Text Experiment Not Implemented")
 
+    @cached_property
     @abstractmethod
     def job(self) -> SafeAICrew:
         """_summary_: Create a new SafeAI Experiment Job"""

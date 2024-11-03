@@ -25,16 +25,25 @@ class ExperimentDataType(SafeAIEnum):
     ### Blah Blah Blah
 
 
-class ModelClassifier(SafeAIEnum):
+class PredictionType(SafeAIEnum):
     """_summary_"""
 
+    CLASSIFICATION = "Classification"
+    REGRESSION = "Regression"
+    ### Blah Blah Blah
+
+class ModelRegressor(SafeAIEnum):
+    """_summary_"""
+    CATBOOSTREGRESSOR = "CatBoostRegressor"
+    XGBREGRESSOR = "XGBRegressor"
+    LOGISTICREGRESSION = "LogisticRegression"
+
+class ModelClassifier(SafeAIEnum):
+    """_summary_"""
     # TODO: Seperate Classifiers and Regressors
     ## Match model names from sklearn library
     CATBOOSTCLASSIFIER = "CatBoostClassifier"
-    CATBOOSTREGRESSOR = "CatBoostRegressor"
     XGBCLASSIFIER = "XGBClassifier"
-    XGBREGRESSOR = "XGBRegressor"
-    LOGISTICREGRESSION = "LogisticRegression"
     RANDOMFORESTCLASSIFIER = "RandomForestClassifier"
     # Blah Blah Blah
 

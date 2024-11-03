@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
 
-from safeai.enums import ModelClassifier, ExperimentDataType, SafeAILLMS
+from safeai.enums import ModelClassifier, ExperimentDataType, ModelRegressor, SafeAILLMS, PredictionType
 
 
 data: pd.DataFrame | None = None
@@ -43,13 +43,33 @@ def experimentation_form():
         key="experiment_test_size",
     )
 
-    st.selectbox(
+    prediction_type = st.selectbox(
+        "Select the Prediction Type",
+        options=[i.value for i in PredictionType],
+        key="prediction_type",
+        index=0,
+    )
+    
+    if prediction_type == PredictionType.CLASSIFICATION:
+        st.selectbox(
+            "Select the Classifier",
+            options=[i.value for i in ModelClassifier if "classifier" in i.value.lower()],
+            key="model",
+            index=0,
+        )
+    else:
+        st.selectbox(
+            "Select the Regressor",
+            options=[i.value for i in ModelRegressor if "regress" in i.value.lower()],
+            key="model",
+            index=0,
+        )
+    st.multiselect(
         "Select the LLM",
         options=[i.value for i in SafeAILLMS],
         key="experiment_llm",
-        index=0,
+        default=[SafeAILLMS.GPT2.value],
     )
-
 
 def tabular_config_form(source_data: pd.DataFrame):
     _columns = set(source_data.columns.tolist())
@@ -60,16 +80,13 @@ def tabular_config_form(source_data: pd.DataFrame):
     drops = st.multiselect(
         "Select columns to drop", options=list(_columns), key="drops", default=None
     )
-    keeps = st.multiselect(
-        "Select columns to keep", options=list(_columns), key="keeps", default=None
-    )
+    
     encodes = st.multiselect(
         "Select columns to encode", options=list(_columns), key="encodes", default=None
     )
     if drops:
         _columns -= set(drops)
-    if keeps:
-        _columns &= set(keeps)
+    
     protected_variables = st.multiselect(
         "Select columns to protect",
         options=list(_columns),
@@ -81,13 +98,7 @@ def tabular_config_form(source_data: pd.DataFrame):
 
     if target:
         _columns.remove(target)
-
-    st.selectbox(
-        "Select the classifier",
-        options=[i.value for i in ModelClassifier],
-        key="classifier",
-        index=0,
-    )
+    
     st.checkbox("Balance the target column", key="balance_target", value=False)
     st.checkbox("Impute missing data", key="impute_missing_data", value=False)
 

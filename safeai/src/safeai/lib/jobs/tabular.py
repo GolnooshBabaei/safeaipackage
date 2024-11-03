@@ -1,26 +1,43 @@
 from functools import cached_property
-from typing import Any, Callable, Self, Union
+from typing import Self, Union
 
+from numpy import array, ndarray
 from pydantic import Field, model_validator, computed_field
-from pandas import DataFrame, Series, read_csv, get_dummies, concat
+from pandas import DataFrame, Series, read_csv, get_dummies
 
 from sklearn.model_selection import train_test_split
 
+from sklearn.preprocessing import LabelEncoder
 from catboost import CatBoostClassifier, CatBoostRegressor
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import LogisticRegression
 from xgboost import XGBClassifier, XGBRegressor
 
 
-from safeai.enums import ModelClassifier
+from safeai.enums import ModelClassifier, PredictionType, ModelRegressor
 from safeai.base import SafeAIJob
 
 
 class TabularJob(SafeAIJob):
-    """_summary_
+    """_summary_: Preprocessing Class for Tabular Data
 
-    Model executes steps we need to control and sends output to the crew
+    Args:
+        SafeAIJob (_type_): _description_
 
+    Raises:
+        NotImplementedError: _description_
+        ValueError: _description_
+        ValueError: _description_
+        ValueError: _description_
+        ValueError: _description_
+        ValueError: _description_
+        ValueError: _description_
+        ValueError: _description_
+        ValueError: _description_
+        ValueError: _description_
+
+    Returns:
+        _type_: TabularJob
     """
 
     new_cols: str = Field(default=None, description="Columns in the dataset")
@@ -33,17 +50,18 @@ class TabularJob(SafeAIJob):
     encodes: list[str] | None = Field(
         default=None, description="Columns to encode from the dataset"
     )
-    keeps: list[str] | None = Field(
-        default=None, description="Columns to keep from the dataset"
-    )
     sep: str = Field(default=",", description="The delimeter of the dataset")
     delimeter: str | None = Field(
         default=None, description="The delimeter of the dataset"
     )
     header: int | None = Field(default=None, description="The header of the dataset")
-    classifier: ModelClassifier = Field(
-        default=ModelClassifier.LOGISTICREGRESSION,
+    model: ModelClassifier | ModelRegressor = Field(
+        default=ModelClassifier.CATBOOSTCLASSIFIER,
         description="The classifier to use for the classification task",
+    )
+    prediction_type: PredictionType = Field(
+        default=PredictionType.CLASSIFICATION,
+        description="The prediction type for the classification task"
     )
     balance_target: bool = Field(
         default=False, description="Whether to balance the target column"
@@ -73,11 +91,28 @@ class TabularJob(SafeAIJob):
         if self.drops:
             _data = _data.drop(columns=self.drops, errors="ignore", axis=1)
 
-        if self.keeps:
-            _data = _data[self.keeps]
+        _label_encoder = LabelEncoder()
+
+        
+        if self.protected_variables:
+            for variable in self.protected_variables:
+                if _data[variable].dtype.name.startswith("object"):
+                    _data[variable] = _label_encoder.fit_transform(_data[variable])
 
         if self.encodes:
-            _data = get_dummies(_data, columns=self.encodes)
+            for variable in self.encodes:
+                if _data[variable].dtype.name.startswith("object"):
+                    if _data[variable].dropna().nunique() == 2:
+                        _data[variable] = _label_encoder.fit_transform(_data[variable])
+                    else:
+                        _data = get_dummies(_data, columns=[variable])
+                        
+        for variable in _data.columns:
+            if variable != self.target:
+                if _data[variable].dtype.name.startswith("object"):
+                    _data.drop(columns=[variable], inplace=True)
+            
+        
 
         if self.balance_target:
             # TODO: Implement balancing of target column
@@ -103,42 +138,7 @@ class TabularJob(SafeAIJob):
         """_summary_: Identifies outliers in @self.data"""
         raise NotImplementedError("This method is not implemented")
 
-    @cached_property
-    def y(self) -> Series:
-        """_summary_: Returns the target column"""
-        return self.data[self.target]
-
-    @cached_property
-    def x(self) -> DataFrame:
-        """_summary_: Returns the feature columns"""
-        return self.data.drop(columns=[self.target])
-
-    @cached_property
-    def train_test_data(self) -> list[DataFrame]:
-        """_summary_: Splits @self.data into training and testing sets"""
-        return train_test_split(
-            self.x, self.y, test_size=self.test_size, random_state=42
-        )
-
-    @cached_property
-    def x_train(self) -> DataFrame:
-        """_summary_: Returns the training data"""
-        return self.train_test_data[0]
-
-    @cached_property
-    def x_test(self) -> DataFrame:
-        """_summary_: Returns the testing data"""
-        return self.train_test_data[1]
-
-    @cached_property
-    def y_train(self) -> DataFrame:
-        """_summary_: Returns the training target"""
-        return self.train_test_data[2]
-
-    @cached_property
-    def y_test(self) -> DataFrame:
-        """_summary_: Returns the testing target"""
-        return self.train_test_data[3]
+    
 
     @model_validator(mode="after")
     def validate_job_configuration(self) -> Self:
@@ -169,13 +169,6 @@ class TabularJob(SafeAIJob):
                     {set(self.drops) - set(self.read_source.columns)} not found in dataset.
                 """)
 
-        if self.keeps:
-            if any(col not in self.read_source.columns for col in self.keeps):
-                raise ValueError(f"""
-                    Some keep columns not found in the dataset. 
-                    {set(self.keeps) - set(self.read_source.columns)} not found in dataset.
-                """)
-
         if self.encodes:
             if any(col not in self.read_source.columns for col in self.encodes):
                 raise ValueError(f"""
@@ -190,6 +183,15 @@ class TabularJob(SafeAIJob):
                 raise ValueError(f"""
                     Some protected columns not found in the dataset. 
                     {set(self.protected_variables) - set(self.read_source.columns)} not found in dataset.
+                """)
+                
+        if self.protected_variables and self.encodes:
+            if any(
+                col in self.protected_variables for col in self.encodes
+            ):
+                raise ValueError(f"""
+                    Some protected columns are also encoded. 
+                    {set(self.protected_variables) & set(self.encodes)} are also encoded.
                 """)
 
         if self.protected_variables and self.target in self.protected_variables:
@@ -223,17 +225,34 @@ class TabularJob(SafeAIJob):
         XGBRegressor,
     ]:
         """_summary_: Fits the model to the data"""
-        return self.clf().fit(self.x_train, self.y_train)
+        return self.clf().fit(self.xtrain, self.ytrain)
 
     @cached_property
     def predictions_train(self) -> DataFrame:
         """_summary_: Predicts the probability of the training data"""
-        return DataFrame({"y": self.y_train, "yhat": self.fit.predict(self.x_train)})
+        return DataFrame({
+            "y": self.ytrain,
+            "yhat": self.fit.predict(self.xtrain),
+            "proba": self.predict_proba(self.xtrain)
+        })
 
     @cached_property
     def predictions_test(self) -> DataFrame:
         """_summary_: Predicts the probability of the testing data"""
-        return DataFrame({"y": self.y_test, "yhat": self.fit.predict(self.x_test)})
+        return DataFrame({
+            "y": self.ytest,
+            "yhat": self.fit.predict(self.xtest),
+            "proba": self.predict_proba(self.xtest)
+        })
+    
+        
+    def predict_proba(self, x:DataFrame) -> ndarray:
+        """_summary_: Predicts the probability of the training data"""
+        try:
+            return self.fit.predict_proba(x).max(axis=1)
+        except Exception as e:
+            print(f"Error: {str(e)}")
+            return self.fit.predict(x)
 
     def clf(
         self,
@@ -246,19 +265,19 @@ class TabularJob(SafeAIJob):
         XGBRegressor,
     ]:
         """_summary_: Returns the model to use for the classification task"""
-        if self.classifier == ModelClassifier.LOGISTICREGRESSION:
+        if self.model == ModelRegressor.LOGISTICREGRESSION:
             return LogisticRegression(random_state=42, penalty="l2", solver="liblinear")
-        if self.classifier == ModelClassifier.RANDOMFORESTCLASSIFIER:
+        if self.model == ModelClassifier.RANDOMFORESTCLASSIFIER:
             return RandomForestClassifier(random_state=42, criterion="gini")
-        if self.classifier == ModelClassifier.CATBOOSTCLASSIFIER:
+        if self.model == ModelClassifier.CATBOOSTCLASSIFIER:
             return CatBoostClassifier(
                 iterations=100, learning_rate=0.1, depth=2, loss_function="Logloss"
             )
-        if self.classifier == ModelClassifier.CATBOOSTREGRESSOR:
+        if self.model == ModelRegressor.CATBOOSTREGRESSOR:
             return CatBoostRegressor(
                 iterations=100, learning_rate=0.1, depth=2, loss_function="RMSE"
             )
-        if self.classifier == ModelClassifier.XGBCLASSIFIER:
+        if self.model == ModelClassifier.XGBCLASSIFIER:
             return XGBClassifier(
                 n_estimators=100,
                 learning_rate=0.1,
@@ -266,7 +285,7 @@ class TabularJob(SafeAIJob):
                 objective="binary:logistic",
                 enable_categorical=True,
             )
-        if self.classifier == ModelClassifier.XGBREGRESSOR:
+        if self.model == ModelRegressor.XGBREGRESSOR:
             return XGBRegressor(
                 n_estimators=100,
                 learning_rate=0.1,
