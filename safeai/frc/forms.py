@@ -56,19 +56,32 @@ def tabular_config_form(source_data: pd.DataFrame):
     sep = st.text_input("File Separator", value=",", placeholder=",", key="sep")
     st.text_area("Column Names", value="", placeholder="", key="new_cols")
     st.checkbox("First Row as Header?", value=True, key="header")
+
+    drops = st.multiselect(
+        "Select columns to drop", options=list(_columns), key="drops", default=None
+    )
+    keeps = st.multiselect(
+        "Select columns to keep", options=list(_columns), key="keeps", default=None
+    )
+    encodes = st.multiselect(
+        "Select columns to encode", options=list(_columns), key="encodes", default=None
+    )
+    if drops:
+        _columns -= set(drops)
+    if keeps:
+        _columns &= set(keeps)
+    protected_variables = st.multiselect(
+        "Select columns to protect",
+        options=list(_columns),
+        key="protected_variables",
+        default=None,
+    )
+
     target = st.selectbox("Target Column", options=_columns, key="target")
 
     if target:
         _columns.remove(target)
-    st.multiselect(
-        "Select columns to drop", options=list(_columns), key="drops", default=None
-    )
-    st.multiselect(
-        "Select columns to keep", options=list(_columns), key="keeps", default=None
-    )
-    st.multiselect(
-        "Select columns to encode", options=list(_columns), key="encodes", default=None
-    )
+
     st.selectbox(
         "Select the classifier",
         options=[i.value for i in ModelClassifier],

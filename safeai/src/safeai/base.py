@@ -27,7 +27,7 @@ def output_object_factory(properties: list[tuple[str, type]]) -> type[BaseModel]
 
 
 class SafeAICrew(Crew):
-    """_summary_"""
+    """_summary_: Customize CrewAI Crew for our purpose"""
 
     artefact_path: str = Field(default=".", description="The path to the artefacts")
 
@@ -39,7 +39,7 @@ class SafeAICrew(Crew):
 
 
 class SafeAIAgent(Agent):
-    """_summary_"""
+    """_summary_: Customize CrewAI Agent for our purpose"""
 
     @computed_field
     @property
@@ -49,7 +49,7 @@ class SafeAIAgent(Agent):
 
 
 class SafeAITask(Task):
-    """_summary_"""
+    """_summary_: Customize CrewAI Task for our purpose"""
 
     job_id: str = Field(
         ...,
@@ -152,6 +152,9 @@ class SafeAIJob(BaseModel):
         raise NotImplementedError("This method is not implemented")
 
 
+T_Job = TypeVar("T_Job", bound=SafeAIJob)
+
+
 class SafeAIExperiment(BaseModel):
     """_summary_: Class for Creating Experiments"""
 
@@ -161,7 +164,9 @@ class SafeAIExperiment(BaseModel):
         """_summary_: Create an UUID4 ID for new Experiments"""
         return f"exp_{str(uuid4())}"
 
-    experiment_job: SafeAIJob
+    experiment_job: SafeAIJob = Field(
+        ..., description="The job for the experiment", exclude=True
+    )
 
     experiment_name: str = Field(
         default="A Name for the experiment", description="The name of the experiment"
@@ -200,9 +205,16 @@ class SafeAIExperiment(BaseModel):
             return None
         return datetime.now()
 
+    @cached_property
     @abstractmethod
     def metrics(self) -> Any:
         """_summary_: Returns the metric for the experiment"""
+        raise NotImplementedError("This method is not implemented")
+
+    @cached_property
+    @abstractmethod
+    def job(self) -> SafeAICrew:
+        """_summary_: Returns the job for the experiment"""
         raise NotImplementedError("This method is not implemented")
 
 

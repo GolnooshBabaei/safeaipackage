@@ -28,10 +28,14 @@ class ExperimentDataType(SafeAIEnum):
 class ModelClassifier(SafeAIEnum):
     """_summary_"""
 
+    # TODO: Seperate Classifiers and Regressors
     ## Match model names from sklearn library
-    RANDOM_FOREST = "RandomForest"
-    XGBOOST = "XGBoost"
-    LOGISTIC_REGRESSION = "LogisticRegression"
+    CATBOOSTCLASSIFIER = "CatBoostClassifier"
+    CATBOOSTREGRESSOR = "CatBoostRegressor"
+    XGBCLASSIFIER = "XGBClassifier"
+    XGBREGRESSOR = "XGBRegressor"
+    LOGISTICREGRESSION = "LogisticRegression"
+    RANDOMFORESTCLASSIFIER = "RandomForestClassifier"
     # Blah Blah Blah
 
 

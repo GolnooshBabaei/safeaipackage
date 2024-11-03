@@ -1,15 +1,10 @@
 from pandas import DataFrame
-from pydantic import Field, computed_field
+from pydantic import computed_field
 from safeai.lib.experimentation.base import SafeAIMetric
 
 
 class Explainability(SafeAIMetric):
     """_summary_: A metric to evaluate the explainability of a model"""
-
-    """variables: list[str] = Field(
-        default=None,
-        description="The variables to compute the explainability for"
-    )"""
 
     @computed_field
     @property
@@ -23,7 +18,7 @@ class Explainability(SafeAIMetric):
     @property
     def compute_group_variable_rge(self) -> DataFrame:
         """_summary_: Computes the RGE for a group of variables"""
-        return (
+        return list(
             self.experiment_job.data.select_dtypes(include="number").mean(axis=1).values
         )
 

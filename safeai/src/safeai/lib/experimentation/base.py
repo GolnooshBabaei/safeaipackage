@@ -1,6 +1,7 @@
 from typing import TypeVar
 from pydantic import BaseModel, computed_field, Field
-from pandas import DataFrame
+import numpy as np
+from pandas import DataFrame, merge
 
 from safeai.base import SafeAIJob
 from safeai.lib.jobs.tabular import TabularJob
@@ -25,5 +26,25 @@ class SafeAIMetric(BaseModel):
     @property
     def rga(self) -> DataFrame:
         """_summary_: Returns the RGA"""
-        ## self.model.fit(self.x_train, self.y_train)
-        return self.experiment_job.data.select_dtypes(include="number").mean(axis=1)
+        predictions = self.experiment_job.predictions_train.copy()
+        predictions["ryhat"] = predictions["yhat"].rank(method="min")
+
+        # Merge support back to the original dataframe
+        predictions = (
+            merge(
+                predictions,
+                predictions.groupby("ryhat")["y"].mean().reset_index(name="support"),
+                on="ryhat",
+                how="left",
+            )
+            .sort_values(by="ryhat")
+            .reset_index(drop=True)
+            .sort_values(by="yhat")
+            .reset_index(drop=True)
+        )
+
+        _Y = np.sort(predictions["y"])
+        inc, dec = np.sum(predictions.index * _Y), np.sum(predictions.index * _Y[::-1])
+        return (np.sum(predictions.index * predictions.support.values) - dec) / (
+            inc - dec
+        )

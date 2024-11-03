@@ -1,5 +1,6 @@
 from abc import abstractmethod
 from functools import cached_property
+from pydantic import Field
 
 from crewai import Process
 from safeai.base import SafeAICrew, SafeAIExperiment
@@ -13,7 +14,10 @@ from safeai.lib.experimentation.metrics.robustness import Robustness
 class TabularExperiment(SafeAIExperiment):
     """_summary_: An experiment for tabular data"""
 
-    experiment_job: TabularJob
+    # TODO: Define correct types and generics
+    experiment_job: TabularJob = Field(
+        ..., description="The job for the experiment", exclude=True
+    )
 
     @cached_property
     def tasks(self) -> SafeAITasks:
@@ -58,9 +62,7 @@ class TabularExperiment(SafeAIExperiment):
     def metrics(self):
         """_summary_: Returns the metrics of the experiment"""
         return {
-            "explainability": self.explainability.model_dump(),
-            "fairness": self.fairness.model_dump(),
-            "robustness": self.robustness.model_dump(),
+            "rga": self.explainability.rga,
         }
 
 

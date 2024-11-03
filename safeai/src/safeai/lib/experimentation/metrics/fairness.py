@@ -10,6 +10,7 @@ class Fairness(SafeAIMetric):
     @property
     def compute_rga_parity(self) -> DataFrame:
         """_summary_: Computes the RGA Parity"""
+        self.rga
         return list(
             self.experiment_job.data.select_dtypes(include="number").mean(axis=1).values
         )

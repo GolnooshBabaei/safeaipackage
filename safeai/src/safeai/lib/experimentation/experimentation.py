@@ -29,18 +29,6 @@ class Experimentation(Generic[T_Experiment]):
         results = [[r.json_dict for r in result.tasks_output] for result in results]
         return [
             {
-                "job_id": self.experiment.job.job_id,
-                "crew_id": str(self.experiment.job.id),
-                "experiment_id": self.experiment.experiment_id,
-                "iteration": index + 1,
-                "tasks": [
-                    {
-                        "agent_id": str(t.agent.id),
-                        "task_id": str(t.id),
-                        "task_result": t.output.json_dict,
-                    }
-                    for t in self.experiment.job.tasks
-                ],
                 "metrics": self.experiment.metrics,
             }
             for index, result in enumerate(results)
