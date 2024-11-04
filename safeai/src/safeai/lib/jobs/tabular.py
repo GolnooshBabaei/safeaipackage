@@ -63,6 +63,12 @@ class TabularJob(SafeAIJob):
         default=PredictionType.CLASSIFICATION,
         description="The prediction type for the classification task"
     )
+    perturbation: float = Field(
+        default=0.01,
+        ge=0,
+        le=0.5,
+        description="The pertubation value for the fairness metric"
+    )
     balance_target: bool = Field(
         default=False, description="Whether to balance the target column"
     )

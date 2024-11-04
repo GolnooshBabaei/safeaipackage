@@ -63,7 +63,8 @@ class TabularExperiment(SafeAIExperiment):
         """_summary_: Returns the metrics of the experiment"""
         return {
             "rga": self.fairness.rga,
-            "fairness": self.fairness.compute_rga_parity
+            "fairness": self.fairness.compute_rga_parity,
+            "robustness": self.robustness.compute_rgr,
         }
 
 

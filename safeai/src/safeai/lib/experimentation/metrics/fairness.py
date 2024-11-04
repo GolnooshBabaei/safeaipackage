@@ -1,3 +1,4 @@
+from numpy import ndarray
 from pandas import DataFrame, Series
 from pydantic import computed_field
 from safeai.enums import PredictionType
@@ -10,7 +11,7 @@ class Fairness(SafeAIMetric):
     def _single_group_rga_parity(
         self,
         x:DataFrame,
-        y:Series,
+        y:Series | ndarray,
         protected_variable:str,
         group_name:str
     ) -> float:
@@ -54,7 +55,7 @@ class Fairness(SafeAIMetric):
                 map(
                     lambda x: self._single_variable_rga_parity(
                         self.experiment_job.xtest,
-                        self.experiment_job.ytest.y,
+                        self.experiment_job.predictions_test["y"],
                         x
                     ),
                     self.experiment_job.protected_variables

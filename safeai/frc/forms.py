@@ -81,17 +81,25 @@ def tabular_config_form(source_data: pd.DataFrame):
         "Select columns to drop", options=list(_columns), key="drops", default=None
     )
     
-    encodes = st.multiselect(
+    st.multiselect(
         "Select columns to encode", options=list(_columns), key="encodes", default=None
     )
     if drops:
         _columns -= set(drops)
     
-    protected_variables = st.multiselect(
+    st.multiselect(
         "Select columns to protect",
         options=list(_columns),
         key="protected_variables",
         default=None,
+    )
+    st.slider(
+        "Perturbation",
+        min_value=0.0,
+        max_value=0.5,
+        value=0.01,
+        step=0.01,
+        key="perturbation"
     )
 
     target = st.selectbox("Target Column", options=_columns, key="target")
