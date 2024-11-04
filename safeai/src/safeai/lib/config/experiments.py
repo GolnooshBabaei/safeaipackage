@@ -65,6 +65,7 @@ class TabularExperiment(SafeAIExperiment):
             "rga": self.fairness.rga,
             "fairness": self.fairness.compute_rga_parity,
             "robustness": self.robustness.compute_rgr,
+            "explainability": self.explainability.compute_rge,
         }
 
 

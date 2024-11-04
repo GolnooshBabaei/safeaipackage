@@ -2,7 +2,13 @@ import streamlit as st
 import pandas as pd
 
 from src.safeai.lib.experimentation.experimentation import Experimentation
-from src.safeai.enums import ExperimentDataType
+from src.safeai.enums import (
+    ExperimentDataType,
+    PredictionType,
+    SafeAILLMS,
+    ModelClassifier,
+    ModelRegressor,
+)
 from src.safeai.lib.jobs.tabular import TabularJob
 from src.safeai.lib.config.experiments import TabularExperiment
 from frc.forms import experimentation_form, tabular_config_form
@@ -15,35 +21,35 @@ st.header("SafeAI Demo")
 with st.sidebar:
     st.title("SafeAI Experimentation Configuration")
 
-    with st.form(key="experimentation_config_form"):
-        experimentation_form()
-        _experiment_config_button = st.form_submit_button(
-            "Submit",
-            type="primary",
-            use_container_width=True,
-            icon=":material/upload_2:",
-        )
+    experimentation_form()
+    _experiment_config_button = st.button(
+        "Submit Experiment Configuration",
+        key="_submit_experiment_config",
+        icon=":material/upload_2:",
+    )
 
-        if _experiment_config_button:
-            st.session_state["submitted_experiment_config"] = True
+    if _experiment_config_button:
+        st.session_state["submitted_experiment_config"] = True
+    st.write(st.session_state.get("prediction_type", False))
 
 configure, source_tab, results_tab, charts_tab = st.tabs(
     ["Experiment", "Data", "Output", "Charts"]
 )
+
+st.write(st.session_state)
 
 if st.session_state.get("submitted_experiment_config", False):
     if st.session_state.get("experiment_type") == ExperimentDataType.TABULAR:
         source_data = pd.read_csv(st.session_state["source"])
 
         with configure:
-            with st.form("tabular_data_form"):
-                tabular_config_form(source_data=source_data)
-                _tabular_config_button = st.form_submit_button(
-                    "Submit",
-                    type="primary",
-                    use_container_width=True,
-                    icon=":material/upload_2:",
-                )
+            tabular_config_form(source_data=source_data)
+            _tabular_config_button = st.button(
+                "Submit",
+                type="primary",
+                use_container_width=True,
+                icon=":material/upload_2:",
+            )
             if _tabular_config_button:
                 st.session_state["submitted_tabular_config"] = True
 

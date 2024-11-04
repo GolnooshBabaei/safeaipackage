@@ -17,17 +17,19 @@ class SafeAIMetric(BaseModel):
 
     class Config:
         arbitrary_types_allowed = True
-    
+
     @computed_field
     @property
     def rga(self) -> float:
         """_summary_: Returns the RGA"""
         return self.get_rga(
             self.experiment_job.predictions_test["y"],
-            self.experiment_job.predictions_test["yhat"]
+            self.experiment_job.predictions_test["yhat"],
         )
-        
-    def get_rga(self, y:Series | np.ndarray | list, yhat:Series | np.ndarray | list) -> float:
+
+    def get_rga(
+        self, y: Series | np.ndarray | list, yhat: Series | np.ndarray | list
+    ) -> float:
         """_summary_: Returns the RGA"""
         predictions = DataFrame({"y": y, "yhat": yhat})
         predictions["ryhat"] = predictions["yhat"].rank(method="min")
@@ -49,8 +51,8 @@ class SafeAIMetric(BaseModel):
         _Y = np.sort(predictions["y"])
         inc, dec = (
             np.sum(predictions.index * _Y),
-            np.sum(predictions.index * _Y[::-1])
+            np.sum(predictions.index * _Y[::-1]),
         )
-        return (
-            np.sum(predictions.index * predictions.support.values) - dec) / (inc - dec
+        return (np.sum(predictions.index * predictions.support.values) - dec) / (
+            inc - dec
         )

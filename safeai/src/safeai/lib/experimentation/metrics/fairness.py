@@ -10,16 +10,18 @@ class Fairness(SafeAIMetric):
 
     def _single_group_rga_parity(
         self,
-        x:DataFrame,
-        y:Series | ndarray,
-        protected_variable:str,
-        group_name:str
+        x: DataFrame,
+        y: Series | ndarray,
+        protected_variable: str,
+        group_name: str,
     ) -> float:
-        """_summary_: Computes RGA-based imparity MEASURE. """
+        """_summary_: Computes RGA-based imparity MEASURE."""
         group_mask = x[protected_variable] == group_name
 
         if not group_mask.any():
-            raise ValueError(f"Group '{group_name}' not found in '{protected_variable}'")
+            raise ValueError(
+                f"Group '{group_name}' not found in '{protected_variable}'"
+            )
 
         try:
             if self.experiment_job.prediction_type == PredictionType.REGRESSION:
@@ -30,20 +32,16 @@ class Fairness(SafeAIMetric):
             raise RuntimeError(f"Prediction failed: {str(e)}") from e
         return self.get_rga(y[group_mask], predictions)
 
-
     def _single_variable_rga_parity(
-        self,
-        x:DataFrame,
-        y:Series,
-        protected_variable:str
+        self, x: DataFrame, y: Series, protected_variable: str
     ) -> float:
-        """_summary_: Computes RGA-based imparity MEASURE. """
+        """_summary_: Computes RGA-based imparity MEASURE."""
         _rgas = list(
-                map(
-                    lambda g: self._single_group_rga_parity(x, y, protected_variable, g),
-                    x[protected_variable].unique()
-                )
+            map(
+                lambda g: self._single_group_rga_parity(x, y, protected_variable, g),
+                x[protected_variable].unique(),
             )
+        )
         return sum(_rgas) / len(_rgas)
 
     @computed_field
@@ -56,9 +54,9 @@ class Fairness(SafeAIMetric):
                     lambda x: self._single_variable_rga_parity(
                         self.experiment_job.xtest,
                         self.experiment_job.predictions_test["y"],
-                        x
+                        x,
                     ),
-                    self.experiment_job.protected_variables
+                    self.experiment_job.protected_variables,
                 )
             )
             if len(rgas) == 1:

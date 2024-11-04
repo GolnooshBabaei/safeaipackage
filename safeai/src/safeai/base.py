@@ -113,7 +113,7 @@ class SafeAIJob(BaseModel):
         except Exception as e:
             raise ValueError("An error occurred while downloading the data") from e
         return self
-    
+
     @cached_property
     def y(self) -> Series:
         """_summary_: Returns the target column"""
@@ -142,7 +142,7 @@ class SafeAIJob(BaseModel):
     def data(self) -> DataFrame:
         """_summary_: Returns the Pandas DataFrame with data for experiment"""
         raise NotImplementedError("This method is not implemented")
-    
+
     @cached_property
     def xtrain(self) -> DataFrame:
         """_summary_: Returns the training data"""
@@ -189,8 +189,7 @@ class SafeAIExperiment(BaseModel):
     )
 
     experiment_llm: list[SafeAILLMS] = Field(
-        default=[SafeAILLMS.GPT2],
-        description="The LLM for the experiment"
+        default=[SafeAILLMS.GPT2], description="The LLM for the experiment"
     )
 
     experiment_type: ExperimentDataType = Field(

@@ -1,18 +1,16 @@
 from functools import cached_property
 from typing import Self, Union
 
-from numpy import array, ndarray
+from numpy import ndarray
 from pydantic import Field, model_validator, computed_field
-from pandas import DataFrame, Series, read_csv, get_dummies
-
-from sklearn.model_selection import train_test_split
+from pandas import DataFrame, read_csv, get_dummies
 
 from sklearn.preprocessing import LabelEncoder
-from catboost import CatBoostClassifier, CatBoostRegressor
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import LogisticRegression
-from xgboost import XGBClassifier, XGBRegressor
 
+from catboost import CatBoostClassifier, CatBoostRegressor
+from xgboost import XGBClassifier, XGBRegressor
 
 from safeai.enums import ModelClassifier, PredictionType, ModelRegressor
 from safeai.base import SafeAIJob
@@ -61,13 +59,13 @@ class TabularJob(SafeAIJob):
     )
     prediction_type: PredictionType = Field(
         default=PredictionType.CLASSIFICATION,
-        description="The prediction type for the classification task"
+        description="The prediction type for the classification task",
     )
     perturbation: float = Field(
         default=0.01,
         ge=0,
         le=0.5,
-        description="The pertubation value for the fairness metric"
+        description="The pertubation value for the fairness metric",
     )
     balance_target: bool = Field(
         default=False, description="Whether to balance the target column"
@@ -80,7 +78,7 @@ class TabularJob(SafeAIJob):
     @property
     def column_names(self) -> list[str] | None:
         """_summary_: Returns the column names"""
-        return self.new_cols.split(",") if self.new_cols else None
+        return self.new_cols.split("\n") if self.new_cols else None
 
     @cached_property
     def read_source(self) -> DataFrame:
@@ -99,7 +97,6 @@ class TabularJob(SafeAIJob):
 
         _label_encoder = LabelEncoder()
 
-        
         if self.protected_variables:
             for variable in self.protected_variables:
                 if _data[variable].dtype.name.startswith("object"):
@@ -112,13 +109,11 @@ class TabularJob(SafeAIJob):
                         _data[variable] = _label_encoder.fit_transform(_data[variable])
                     else:
                         _data = get_dummies(_data, columns=[variable])
-                        
+
         for variable in _data.columns:
             if variable != self.target:
                 if _data[variable].dtype.name.startswith("object"):
                     _data.drop(columns=[variable], inplace=True)
-            
-        
 
         if self.balance_target:
             # TODO: Implement balancing of target column
@@ -143,8 +138,6 @@ class TabularJob(SafeAIJob):
     def outliers(self) -> DataFrame:
         """_summary_: Identifies outliers in @self.data"""
         raise NotImplementedError("This method is not implemented")
-
-    
 
     @model_validator(mode="after")
     def validate_job_configuration(self) -> Self:
@@ -190,11 +183,9 @@ class TabularJob(SafeAIJob):
                     Some protected columns not found in the dataset. 
                     {set(self.protected_variables) - set(self.read_source.columns)} not found in dataset.
                 """)
-                
+
         if self.protected_variables and self.encodes:
-            if any(
-                col in self.protected_variables for col in self.encodes
-            ):
+            if any(col in self.protected_variables for col in self.encodes):
                 raise ValueError(f"""
                     Some protected columns are also encoded. 
                     {set(self.protected_variables) & set(self.encodes)} are also encoded.
@@ -236,23 +227,26 @@ class TabularJob(SafeAIJob):
     @cached_property
     def predictions_train(self) -> DataFrame:
         """_summary_: Predicts the probability of the training data"""
-        return DataFrame({
-            "y": self.ytrain,
-            "yhat": self.fit.predict(self.xtrain),
-            "proba": self.predict_proba(self.xtrain)
-        })
+        return DataFrame(
+            {
+                "y": self.ytrain,
+                "yhat": self.fit.predict(self.xtrain),
+                "proba": self.predict_proba(self.xtrain),
+            }
+        )
 
     @cached_property
     def predictions_test(self) -> DataFrame:
         """_summary_: Predicts the probability of the testing data"""
-        return DataFrame({
-            "y": self.ytest,
-            "yhat": self.fit.predict(self.xtest),
-            "proba": self.predict_proba(self.xtest)
-        })
-    
-        
-    def predict_proba(self, x:DataFrame) -> ndarray:
+        return DataFrame(
+            {
+                "y": self.ytest,
+                "yhat": self.fit.predict(self.xtest),
+                "proba": self.predict_proba(self.xtest),
+            }
+        )
+
+    def predict_proba(self, x: DataFrame) -> ndarray:
         """_summary_: Predicts the probability of the training data"""
         try:
             return self.fit.predict_proba(x).max(axis=1)

@@ -1,7 +1,13 @@
 import streamlit as st
 import pandas as pd
 
-from safeai.enums import ModelClassifier, ExperimentDataType, ModelRegressor, SafeAILLMS, PredictionType
+from safeai.enums import (
+    ModelClassifier,
+    ExperimentDataType,
+    ModelRegressor,
+    SafeAILLMS,
+    PredictionType,
+)
 
 
 data: pd.DataFrame | None = None
@@ -20,12 +26,6 @@ def experimentation_form():
         key="experiment_type",
         index=0,
     )
-    st.text_input(
-        "Source Data URL",
-        value="https://raw.githubusercontent.com/datasciencedojo/datasets/refs/heads/master/titanic.csv",
-        placeholder="https://source_of_data.csv",
-        key="source",
-    )
     st.slider(
         "Experiment Iterations",
         min_value=0,
@@ -43,27 +43,48 @@ def experimentation_form():
         key="experiment_test_size",
     )
 
+    link_to_data = st.checkbox(
+        "Provide Link to Data?",
+        value=False,
+        key="link_to_data",
+    )
+
+    if link_to_data:
+        st.text_input(
+            "Source Data URL",
+            value="https://raw.githubusercontent.com/datasciencedojo/datasets/refs/heads/master/titanic.csv",
+            placeholder="https://source_of_data.csv",
+            key="source",
+        )
+    else:
+        st.file_uploader("Upload Data", type=["csv"], key="source")
+
     prediction_type = st.selectbox(
         "Select the Prediction Type",
         options=[i.value for i in PredictionType],
         key="prediction_type",
-        index=0,
+        index=None,
     )
-    
-    if prediction_type == PredictionType.CLASSIFICATION:
-        st.selectbox(
-            "Select the Classifier",
-            options=[i.value for i in ModelClassifier if "classifier" in i.value.lower()],
-            key="model",
-            index=0,
-        )
-    else:
-        st.selectbox(
-            "Select the Regressor",
-            options=[i.value for i in ModelRegressor if "regress" in i.value.lower()],
-            key="model",
-            index=0,
-        )
+
+    if prediction_type:
+        if prediction_type == PredictionType.CLASSIFICATION:
+            st.selectbox(
+                "Select the Classifier",
+                options=[
+                    i.value for i in ModelClassifier if "classifier" in i.value.lower()
+                ],
+                key="model",
+                index=0,
+            )
+        else:
+            st.selectbox(
+                "Select the Regressor",
+                options=[
+                    i.value for i in ModelRegressor if "regress" in i.value.lower()
+                ],
+                key="model",
+                index=0,
+            )
     st.multiselect(
         "Select the LLM",
         options=[i.value for i in SafeAILLMS],
@@ -71,22 +92,28 @@ def experimentation_form():
         default=[SafeAILLMS.GPT2.value],
     )
 
+
 def tabular_config_form(source_data: pd.DataFrame):
     _columns = set(source_data.columns.tolist())
     sep = st.text_input("File Separator", value=",", placeholder=",", key="sep")
     st.text_area("Column Names", value="", placeholder="", key="new_cols")
     st.checkbox("First Row as Header?", value=True, key="header")
 
+    target = st.selectbox("Target Column", options=_columns, key="target")
+
+    if target:
+        _columns.remove(target)
+
     drops = st.multiselect(
         "Select columns to drop", options=list(_columns), key="drops", default=None
     )
-    
+    if drops:
+        _columns -= set(drops)
+
     st.multiselect(
         "Select columns to encode", options=list(_columns), key="encodes", default=None
     )
-    if drops:
-        _columns -= set(drops)
-    
+
     st.multiselect(
         "Select columns to protect",
         options=list(_columns),
@@ -99,14 +126,9 @@ def tabular_config_form(source_data: pd.DataFrame):
         max_value=0.5,
         value=0.01,
         step=0.01,
-        key="perturbation"
+        key="perturbation",
     )
 
-    target = st.selectbox("Target Column", options=_columns, key="target")
-
-    if target:
-        _columns.remove(target)
-    
     st.checkbox("Balance the target column", key="balance_target", value=False)
     st.checkbox("Impute missing data", key="impute_missing_data", value=False)
 
