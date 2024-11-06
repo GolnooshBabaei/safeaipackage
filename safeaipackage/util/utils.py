@@ -4,6 +4,8 @@ from typing import Union
 from catboost import CatBoostClassifier, CatBoostRegressor
 from sklearn.base import BaseEstimator
 from xgboost import XGBClassifier, XGBRegressor
+from sklearn.base import is_classifier, is_regressor
+
 
 def manipulate_testdata(xtrain: pd.DataFrame, 
                         xtest: pd.DataFrame, 
@@ -114,3 +116,26 @@ def check_nan(*dataframes):
     for i, df in enumerate(dataframes, start=1):
         if df.isna().sum().sum() > 0:
             raise ValueError(f"DataFrame {i} contains missing values.")
+
+
+def find_yhat(model: Union[CatBoostClassifier, CatBoostRegressor, XGBClassifier, XGBRegressor, BaseEstimator],      
+              xtest: pd.DataFrame):
+    """
+    Find predicted values for the manipulated data.
+
+    Parameters
+    ----------
+    xtest : pd.DataFrame
+            A dataframe including test data.
+    model : Union[CatBoostClassifier, CatBoostRegressor, XGBClassifier, XGBRegressor, BaseEstimator]
+            A trained model, which could be a classifier or regressor.
+
+    Returns:  
+    float
+            The yhat value.
+    """
+    if is_classifier(model):
+        yhat = [x[1] for x in model.predict_proba(xtest)]
+    elif is_regressor(model):
+        yhat = model.predict(xtest)
+    return yhat

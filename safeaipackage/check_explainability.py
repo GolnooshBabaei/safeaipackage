@@ -2,20 +2,20 @@ import pandas as pd
 import numpy as np
 from typing import Union
 from .core import rga
-from .util.utils import manipulate_testdata, validate_variables, convert_to_dataframe, check_nan
+from .util.utils import manipulate_testdata, validate_variables, convert_to_dataframe, check_nan, find_yhat
 from catboost import CatBoostClassifier, CatBoostRegressor
 from sklearn.base import is_classifier, is_regressor
 from sklearn.base import BaseEstimator
 from xgboost import XGBClassifier, XGBRegressor
 
-
-def compute_single_variable_rge(xtrain: pd.DataFrame, 
-                                xtest: pd.DataFrame, 
-                                yhat: list, 
-                                model: Union[CatBoostClassifier, CatBoostRegressor, XGBClassifier, XGBRegressor, BaseEstimator], 
-                                variables: list):
+def compute_rge_values(xtrain: pd.DataFrame, 
+                xtest: pd.DataFrame,
+                yhat: list,
+                model: Union[CatBoostClassifier, CatBoostRegressor, XGBClassifier, XGBRegressor, BaseEstimator],  
+                variables: list, 
+                group: bool = False):
     """
-    Compute RANK GRADUATION EXPLAINABILITY (RGE) MEASURE for single variable contribution.
+    Helper function to compute the RGE values for given variables or groups of variables.
 
     Parameters
     ----------
@@ -29,11 +29,13 @@ def compute_single_variable_rge(xtrain: pd.DataFrame,
             A trained model, which could be a classifier or regressor. 
     variables : list
             A list of variables.
+    group : bool
+            If True, calculate RGE for the group of variables as a whole; otherwise, calculate for each variable.
 
     Returns
     -------
     pd.DataFrame
-            The RGE value.
+            The RGE values for each variable or for the group.
     """
     # Convert inputs to DataFrames and concatenate them
     xtrain, xtest, yhat = convert_to_dataframe(xtrain, xtest, yhat)
@@ -42,98 +44,25 @@ def compute_single_variable_rge(xtrain: pd.DataFrame,
     # variables should be a list
     validate_variables(variables, xtrain)
     # find RGEs
-    rge_list = []
-    for i in variables:
-        xtest_rm = manipulate_testdata(xtrain, xtest, model, i)
-        if is_classifier(model):
-            yhat_rm = [x[1] for x in model.predict_proba(xtest_rm)]
-        elif is_regressor(model):
-            yhat_rm = model.predict(xtest_rm)        
-        rge_list.append(1 - (rga(yhat, yhat_rm)))
-    rge_df = pd.DataFrame(rge_list, index=variables, columns=["RGE"]).sort_values(by="RGE", ascending=False)
-    return rge_df
+    if group:
+        # Apply manipulate_testdata iteratively for each variable in the group
+        for variable in variables:
+            xtest = manipulate_testdata(xtrain, xtest, model, variable)
+        
+        # Calculate yhat after manipulating all variables in the group
+        yhat_rm = find_yhat(model, xtest)
+        
+        # Calculate a single RGE for the entire group
+        rge = 1 - (rga(yhat, yhat_rm))
+        return pd.DataFrame([rge], index=[str(variables)], columns=["RGE"])
 
+    else:
+        # Calculate RGE for each variable individually
+        rge_list = []
+        for variable in variables:
+            xtest_rm = manipulate_testdata(xtrain, xtest, model, variable)
+            yhat_rm = find_yhat(model, xtest_rm)
+            rge_list.append(1 - (rga(yhat, yhat_rm)))
+        
+        return pd.DataFrame(rge_list, index=variables, columns=["RGE"]).sort_values(by="RGE", ascending=False)
 
-def compute_group_variable_rge(xtrain: pd.DataFrame, 
-                               xtest: pd.DataFrame, 
-                               yhat: list, 
-                               model: Union[CatBoostClassifier, CatBoostRegressor, XGBClassifier, XGBRegressor, BaseEstimator], 
-                               variables: list):
-    """
-    Compute RANK GRADUATION EXPLAINABILITY (RGE) MEASURE for group variable contribution.
-
-    Parameters
-    ----------
-    xtrain : pd.DataFrame
-            A dataframe including train data.
-    xtest : pd.DataFrame
-            A dataframe including test data.
-    yhat : list
-            A list of predicted values.
-    model : Union[CatBoostClassifier, CatBoostRegressor, XGBClassifier, XGBRegressor, BaseEstimator]
-            A trained model, which could be a classifier or regressor.  
-    variables : list
-            A list of variables.
-
-    Returns
-    -------
-    pd.DataFrame
-            The RGE value.
-    """
-    # Convert inputs to DataFrames and concatenate them
-    xtrain, xtest, yhat = convert_to_dataframe(xtrain, xtest, yhat)
-    # check for missing values
-    check_nan(xtrain, xtest, yhat)
-    # variables should be a list
-    validate_variables(variables, xtrain)
-    # find RGEs
-    for i in variables:
-        xtest_rm = manipulate_testdata(xtrain, xtest, model, i)
-        xtest = xtest_rm.copy()
-    if is_classifier(model):
-        yhat_rm = [x[1] for x in model.predict_proba(xtest_rm)]
-    elif is_regressor(model):
-        yhat_rm = model.predict(xtest_rm)            
-    rge = 1 - (rga(yhat, yhat_rm))
-    rge_df = pd.DataFrame(rge, index=[str(variables)], columns=["RGE"])
-    return rge_df
-
-
-def compute_full_single_rge(xtrain: pd.DataFrame, 
-                            xtest: pd.DataFrame, 
-                            yhat: list, 
-                            model: Union[CatBoostClassifier, CatBoostRegressor, XGBClassifier, XGBRegressor, BaseEstimator]):
-    """
-    Compute RANK GRADUATION EXPLAINABILITY (RGE) MEASURE for all variables.
-
-    Parameters
-    ----------
-    xtrain : pd.DataFrame
-            A dataframe including train data.
-    xtest : pd.DataFrame
-            A dataframe including test data.
-    yhat : list
-            A list of predicted values.
-    model : Union[CatBoostClassifier, CatBoostRegressor, XGBClassifier, XGBRegressor, BaseEstimator]
-            A trained model, which could be a classifier or regressor.  
-
-    Returns
-    -------
-    pd.DataFrame
-            The RGE value.
-    """
-    # Convert inputs to DataFrames and concatenate them
-    xtrain, xtest, yhat = convert_to_dataframe(xtrain, xtest, yhat)
-    # check for missing values
-    check_nan(xtrain, xtest, yhat)
-    # find RGEs
-    rge_list = []
-    for i in xtest.columns:
-        xtest_rm = manipulate_testdata(xtrain, xtest, model, i)
-        if is_classifier(model):
-            yhat_rm = [x[1] for x in model.predict_proba(xtest_rm)]
-        elif is_regressor(model):
-            yhat_rm = model.predict(xtest_rm)
-        rge_list.append(1 - (rga(yhat, yhat_rm)))
-    rge_df = pd.DataFrame(rge_list, index= xtest.columns, columns=["RGE"]).sort_values(by="RGE", ascending=False)
-    return rge_df

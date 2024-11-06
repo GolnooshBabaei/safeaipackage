@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 from typing import Union
 from .core import rga
-from .util.utils import convert_to_dataframe, check_nan
+from .util.utils import convert_to_dataframe, check_nan, find_yhat
 from catboost import CatBoostClassifier, CatBoostRegressor
 from sklearn.base import is_classifier, is_regressor
 from sklearn.base import BaseEstimator
@@ -50,10 +50,7 @@ def compute_rga_parity(xtrain: pd.DataFrame,
     for i in protected_groups:
         xtest_pr = xtest[xtest[protectedvariable]== i]
         ytest_pr = ytest.loc[xtest_pr.index]
-        if is_classifier(model):
-            yhat_pr = [x[1] for x in model.predict_proba(xtest_pr)]
-        elif is_regressor(model):
-            yhat_pr = model.predict(xtest_pr)         
+        yhat_pr = find_yhat(model, xtest_pr)         
         rga_value = rga(ytest_pr, yhat_pr)
         rgas.append(rga_value)            
     return f"The RGA-based imparity between the protected gorups is {max(rgas)-min(rgas)}."    
