@@ -29,27 +29,18 @@ This function compares ranks of the actual values with ranks of the predicted va
 
 ### check_explainability
 
-This module includes three functions to measure contribution of the variables in three different settings. In particular, using the functions available in check_accuracy module, it is possible to calculate __Rank Graduation Explainability (RGE)__ metric which is base on RGA.  
+This module includes the compute_rge_values function to measure contribution of the variables (individually or in a group) to the model. In particular, using the function available in this module, it is possible to calculate __Rank Graduation Explainability (RGE)__ metric which is base on RGA.  
 
 __Functions:__
 
-1. compute_single_variable_rge(xtrain, xtest, yhat, model, variables)
+compute_rge_values(xtrain, 
+                xtest,
+                yhat,
+                model,  
+                variables, 
+                group= False)
 
-This function calculates RGE for each single considered variable. In particular, this function compares ranks of the predicted values by the model including all the effects of all the variables with the ranks of the predicted values by the model excluding the effect of the selected variable. When RGE is equal to 1, it shows a variable with a high contribution to the model. while when it is equal to 0, there is no contribution to the predictions.
-
-- **Parameters**:
-    - `xtrain`: Train data
-    - `xtest`: Test data
-    - `yhat`: Predicted probabilities  
-    - `model`: A trained model, which could be a classifier or regressor.
-    - `variables`: List of variables 
-    
-- **Returns**: RGE value for each of the selected variables
-
-
-2. compute_group_variable_rge(xtrain, xtest, yhat, model, variables)
-
-This function calculates contribution of a group of variables. In other words, using this function it is possible to evaluate how predicted values change when the effect of a group of variables is discarded. 
+This function calculates RGE for each single considered variable, individually or in a group based on the provided value for group parameter. In particular, this function compares ranks of the predicted values including all the variables with the ranks of the predicted values by the model excluding the effect of the selected variable(s). When RGE is equal to 1, it shows a variable with a high contribution to the model. while when it is equal to 0, there is no contribution to the predictions.
 
 - **Parameters**:
     - `xtrain`: Train data
@@ -57,21 +48,9 @@ This function calculates contribution of a group of variables. In other words, u
     - `yhat`: Predicted probabilities  
     - `model`: A trained model, which could be a classifier or regressor.
     - `variables`: List of variables 
+    - `group`: A boolean parameter. If True, calculate RGE for the group of variables as a whole; otherwise, calculate for each variable.
     
-- **Returns**: RGE value for the selected group of the variables
-
-
-3. compute_full_single_rge(xtrain, xtest, yhat, model)
-
-This function calculates contribution of all variables. 
-
-- **Parameters**:
-    - `xtrain`: Train data
-    - `xtest`: Test data
-    - `yhat`: Predicted probabilities  
-    - `model`: A trained model, which could be a classifier or regressor.    
-    
-- **Returns**: RGE values for all variables
+- **Returns**: RGE 
 
 
 ### check_fairness
@@ -80,7 +59,7 @@ This module provides model imparity analysis. Using the function in this module,
 
 __Functions:__
 
-1. compute_rga_parity(xtrain, xtest, ytest, yhat, model, protectedvariable)
+compute_rga_parity(xtrain, xtest, ytest, yhat, model, protectedvariable)
 
 This function calculates RGA values for the protected groups considering the given protected variable. 
 
@@ -98,11 +77,11 @@ This function calculates RGA values for the protected groups considering the giv
 
 ### check_robustness
 
-This module includes two functions to measure robustness of the model towards the perturbations applied to the variables. In particular, using the functions available in check_robustness module, it is possible to calculate __Rank Graduation Robustness (RGR)__ metric which is base on RGA.  
+This module includes a function to measure robustness of the model towards the perturbations applied to the variables. In particular, using the function available in check_robustness module, it is possible to calculate __Rank Graduation Robustness (RGR)__ metric which is base on RGA.  
 
 __Functions:__
 
-1. compute_single_variable_rgr(xtest, yhat, model, variables, perturbation_percentage= 0.05)
+compute_rgr_values(xtest, yhat, model, variables, perturbation_percentage= 0.05)
 
 This function calculates RGR for each single considered variable. In other words, this function compares ranks of the predicted values by the model including the original values of the variables with the ranks of the predicted values by the model including the selected perturbed variable. When RGR is equal to 1, it shows that the model is completely robust to the variable perturbations.When RGR is equal to 0, model is not robust.
 
@@ -113,20 +92,7 @@ This function calculates RGR for each single considered variable. In other words
     - `variables`: List of variables 
     - `perturbation_percentage`: The percentage for perturbation process
     
-- **Returns**: RGR value for each of the selected variables
-
-
-2. compute_full_single_rgr(xtest, yhat, model, perturbation_percentage= 0.05)
-
-This function calculates robustness of the model for all the variables. 
-
-- **Parameters**:
-    - `xtest`: Test data
-    - `yhat`: Predicted probabilities  
-    - `model`: A trained model, which could be a classifier or regressor.
-    - `perturbation_percentage`: The percentage for perturbation process
-       
-- **Returns**: RGR values for all variables
+- **Returns**: RGR 
 
 
 # Install
