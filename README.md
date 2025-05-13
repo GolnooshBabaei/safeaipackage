@@ -33,22 +33,17 @@ This module includes the compute_rge_values function to measure contribution of 
 
 __Functions:__
 
-compute_rge_values(xtrain, 
-                xtest,
-                yhat,
-                model,  
-                variables, 
-                group= False)
+compute_rge_values(xtrain, xtest, yhat, model, variables, group= False)
 
-This function calculates RGE for each single considered variable, individually or in a group based on the provided value for group parameter. In particular, this function compares ranks of the predicted values including all the variables with the ranks of the predicted values by the model excluding the effect of the selected variable(s). When RGE is equal to 1, it shows a variable with a high contribution to the model. while when it is equal to 0, there is no contribution to the predictions.
+This function calculates RGE for each single considered variable individually or in a group based on the provided value for group parameter. In particular, this function compares ranks of the predicted values including all the variables with the ranks of the predicted values by the model excluding the effect of the selected variable(s). When RGE is equal to 1, it shows a variable with a high contribution to the model. while when it is equal to 0, there is no contribution to the predictions.
 
 - **Parameters**:
     - `xtrain`: Train data
     - `xtest`: Test data
     - `yhat`: Predicted probabilities  
-    - `model`: A trained model, which could be a classifier or regressor.
+    - `model`: A trained model, which could be a classifier or regressor
     - `variables`: List of variables 
-    - `group`: A boolean parameter. If True, calculate RGE for the group of variables as a whole; otherwise, calculate for each variable.
+    - `group`: A boolean parameter. If True, calculate RGE for the group of variables as a whole; otherwise, calculate for each variable
     
 - **Returns**: RGE 
 
@@ -68,30 +63,31 @@ This function calculates RGA values for the protected groups considering the giv
     - `xtest`: Test data
     - `ytest`: Actual response values
     - `yhat`: Predicted probabilities  
-    - `model`: A trained model, which could be a classifier or regressor.
+    - `model`: A trained model, which could be a classifier or regressor
     - `protectedvariable`: Protected (sensitive) variable which is a binary categorical variable
-    
+
     
 - **Returns**: Difference between the RGA values in each protected group
 
 
 ### check_robustness
 
-This module includes a function to measure robustness of the model towards the perturbations applied to the variables. In particular, using the function available in check_robustness module, it is possible to calculate __Rank Graduation Robustness (RGR)__ metric which is base on RGA.  
+This function calculates RGR for each single considered variable individually or in a group based on the provided value for group parameter. In particular, this function measures robustness of the model towards the perturbations applied to the variables. In particular, using the function available in check_robustness module, it is possible to calculate __Rank Graduation Robustness (RGR)__ metric which is base on RGA.  
 
 __Functions:__
 
-compute_rgr_values(xtest, yhat, model, variables, perturbation_percentage= 0.05)
+compute_rgr_values(xtest, yhat, model, variables, perturbation_percentage= 0.05, group= False)
 
-This function calculates RGR for each single considered variable. In other words, this function compares ranks of the predicted values by the model including the original values of the variables with the ranks of the predicted values by the model including the selected perturbed variable. When RGR is equal to 1, it shows that the model is completely robust to the variable perturbations.When RGR is equal to 0, model is not robust.
+This function calculates RGR for each single considered variable individually or in a group based on the provided value for group parameter. In other words, this function compares ranks of the predicted values by the model including the original values of the variables with the ranks of the predicted values by the model including the selected perturbed variable(s). When RGR is equal to 1, it shows that the model is completely robust to the variable perturbations.When RGR is equal to 0, model is not robust.
 
 - **Parameters**:
     - `xtest`: Test data
     - `yhat`: Predicted probabilities  
-    - `model`: A trained model, which could be a classifier or regressor.
+    - `model`: A trained model, which could be a classifier or regressor
     - `variables`: List of variables 
     - `perturbation_percentage`: The percentage for perturbation process
-    
+     - `group`: A boolean parameter. If True, calculate RGE for the group of variables as a whole; otherwise, calculate for each variable
+
 - **Returns**: RGR 
 
 
