@@ -86,7 +86,7 @@ This function calculates RGR for each single considered variable individually or
     - `model`: A trained model, which could be a classifier or regressor
     - `variables`: List of variables 
     - `perturbation_percentage`: The percentage for perturbation process
-     - `group`: A boolean parameter. If True, calculate RGE for the group of variables as a whole; otherwise, calculate for each variable
+     - `group`: A boolean parameter. If True, calculate RGR for the group of variables as a whole; otherwise, calculate for each variable
 
 - **Returns**: RGR 
 
