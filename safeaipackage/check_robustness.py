@@ -84,29 +84,29 @@ def compute_rgr_values(xtest: pd.DataFrame,
             The RGR values for each variable or for the group.
     """
     # Convert inputs to DataFrames and concatenate them
-    xtest, yhat = utils.convert_to_dataframe(xtest, yhat)
+    xtest, yhat = convert_to_dataframe(xtest, yhat)
     # check for missing values
-    utils.check_nan(xtest, yhat)
+    check_nan(xtest, yhat)
     # variables should be a list
-    utils.validate_variables(variables, xtest)
+    validate_variables(variables, xtest)
     # find RGRs
 
     if group:
         for variable in variables:
-            xtest = utils.manipulate_testdata(xtrain, xtest, model, variable)
+            xtest = perturb(xtest, variable, perturbation_percentage)
         
         # Calculate yhat after manipulating all variables in the group
-        yhat_rm = utils.find_yhat(model, xtest)
+        yhat_rm = find_yhat(model, xtest)
         # Calculate a single RGR for the entire group
-        rgr = core.rga(yhat, yhat_rm)
+        rgr = rga(yhat, yhat_rm)
         return pd.DataFrame([rgr], index=[str(variables)], columns=["RGR"])
 
     else:
         rgr_list = []
         for variable in variables:
             xtest_pert = perturb(xtest, variable, perturbation_percentage)
-            yhat_pert = utils.find_yhat(model, xtest_pert)
-            rgr_list.append(core.rga(yhat, yhat_pert))
+            yhat_pert = find_yhat(model, xtest_pert)
+            rgr_list.append(rga(yhat, yhat_pert))
         rgr_df = pd.DataFrame(rgr_list, index= list(variables), columns=["RGR"]).sort_values(by="RGR", ascending=False)
             
     return rgr_df
