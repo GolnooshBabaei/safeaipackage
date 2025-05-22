@@ -1,0 +1,34 @@
+[tool.poetry]
+name = "safeai"
+version = "0.1.0"
+description = ""
+authors = []
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = ">=3.10,<=3.13"
+pydantic = "^2.9.2"
+pydantic-settings = "^2.6.0"
+crewai = "^0.74.2"
+pandas = "^2.2.3"
+crewai-tools = "^0.13.2"
+ruff = "^0.7.0"
+pytest = "^8.3.3"
+scikit-learn = "^1.5.2"
+polyfactory = "^2.17.0"
+pydantic-factories = "^1.17.3"
+streamlit = "^1.39.0"
+catboost = "1.2.7"
+xgboost = "^2.1.2"
+numpy = ">=1.16.0,<2.0"
+
+
+[project.scripts]
+safeai = "sample:run"
+safeai_run = "sample:run"
+
+[build-system]
+requires = [
+    "hatchling","poetry-core"
+]
+build-backend = "hatchling.build"
