@@ -115,7 +115,7 @@ If you need help or have any questions, the first step should be to take a look 
 
 The proposed measures in this package came primarily out of research by 
 [Paolo Giudici](https://www.linkedin.com/in/paolo-giudici-60028a/), [Emanuela Raffinetti](https://www.linkedin.com/in/emanuela-raffinetti-a3980215/), 
-and [Golnoosh Babaei](https://www.linkedin.com/in/golnoosh-babaei-990077187/) in the [Statistical laboratory](https://sites.google.com/unipv.it/statslab-pavia/home?authuser=0) 
+and [Golnoosh Babaei](https://www.linkedin.com/in/golnoosh-babaei-990077187/) 
 at the University of Pavia. 
 This package is based on the following papers. If you use safeaipackage in your research we would appreciate a citation to our papers:
 * [Babaei, G., Giudici, P., & Raffinetti, E. (2024). A Rank Graduation Box for SAFE AI. Expert Systems with Applications, 125239.](https://doi.org/10.1016/j.eswa.2024.125239)
